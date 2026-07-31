@@ -74,6 +74,21 @@ The icon at the top right of each card is an at-a-glance version of the same sta
 | ⛔ red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
 | ❌ red cross octagon | Error | Read the detail line beneath the card |
 
+Or follow it through:
+
+```mermaid
+flowchart TD
+    A[Share shows an icon] --> B{Which icon?}
+    B -->|Green check| C[Connected — nothing to do]
+    B -->|Blue dashed| D[Press Connect]
+    B -->|Yellow key| E[Save credentials in Settings]
+    B -->|Red triangle| F[Press Fix Connection]
+    E --> D
+    F --> G{Reconnected?}
+    G -->|Yes| C
+    G -->|No| H[Check /Volumes for a name conflict]
+```
+
 #### Source Badge
 
 Beside the status icon, a badge shows where the share's configuration came from:
