@@ -70,9 +70,9 @@ The icon at the top right of each card is an at-a-glance version of the same sta
 | ◌ blue dashed circle | Ready — a network path is reachable and credentials are saved | Press `Connect` |
 | 🚫 grey crossed-out Wi-Fi | Not connected — no configured endpoint responded on port 445 | Check the server is on and reachable |
 | 🔑 yellow key | Setup needed — no credentials saved for this share | Press `Complete Setup…` |
-| ⚠️ red triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
-| ⛔ red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
-| ❌ red cross octagon | Error | Read the detail line beneath the card |
+| ⚠️ red warning triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
+| 🛑 red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
+| ❌ red cross | Error | Read the detail line beneath the card |
 
 Or follow it through:
 
