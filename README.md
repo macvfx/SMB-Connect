@@ -16,6 +16,14 @@ It is designed for environments where users regularly connect to multiple storag
 - *FIXED* v0.5.1 removes main-thread publishing warnings in the mount service.
 - v0.4.1 fixed the SMB Connect Settings window so it reliably comes to the front when opened from the menu bar app.
 
+## Documentation
+
+- **[User Guide](USER-GUIDE.md)** — setup, getting started, every feature, and troubleshooting
+- **[User Guide (PDF)](USER-GUIDE.pdf)** — the same guide as a printable download
+
+The app also has help built in: press `?` in the menu bar popup, or open
+**Settings → Help → Getting Started**, for a Quick Start and an Advanced section.
+
 ## What The App Does
 
 - Configures shares by alias, share name, mount name, and one or more IP-based network paths
