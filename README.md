@@ -1,11 +1,13 @@
 # SMB Connect
 
-`v0.5.4` · `macOS 14+` · `SwiftUI` · `Menu Bar Utility`
+`v0.5.5` · `macOS 14+` · `SwiftUI` · `Menu Bar Utility`
 
 SMB Connect is a macOS menu bar app for mounting SMB shares with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
 It is designed for environments where users regularly connect to multiple storage targets and need the app to:
 
+- *NEW* v0.5.5 (build 14) adds built-in help — press `?` in the menu or open Settings → Help — with a **Quick Start** (add a share, save credentials, connect, read the status icons) and an **Advanced** section (preferred/fallback paths, VPN, duplicate mounts, `/Volumes` conflicts, MDM deployment). Adds **Check for Updates**, which compares version numbers only, installs nothing, and sends no device or share information.
+- *FIXED* v0.5.5 stops long share names garbling the status badges beside them — the share card header now carries a single status icon (wording on hover and for VoiceOver) plus the source badge, with the full detail still spelled out in the pills below. The menu footer now marks `Connect All` as the primary action, with Settings, Help, Check for Updates and Quit in a lighter row beneath it.
 - *FIXED* v0.5.4 (build 13) connects to shares that are reachable only over a VPN or routed network (WireGuard, Tailscale, corporate, inter-VLAN). Endpoint selection no longer requires the server IP to be on a local subnet — it keeps subnet matching as a fast path, then falls back to probing every configured endpoint and connects to whichever answers on SMB (TCP port 445). Connections made over a routed path are tagged `(via VPN)` in the status detail.
 - *FIXED* v0.5.3 (build 12) shows a readable "Authentication failed" message instead of `Mount failed (error 80)` when a credential is rejected, keeps startup auto-connect quiet (failures show on the footer status line instead of a modal alert), and pins the popup header and `Quit` button so the title and buttons are never clipped — only the summary and shares list scroll.
 - *FIXED* v0.5.3 stops a false `Mounted Wrong` / duplicate state caused by macOS system and autofs volumes (for example the `auto_home` map named `home`) matching a configured share such as `Home`, and posts a quiet macOS notification when a share genuinely needs attention. The app version is also shown in the popup (next to `Quit`) and in the bottom-left of the Settings window.
@@ -26,6 +28,9 @@ It is designed for environments where users regularly connect to multiple storag
 - Limits mount detection to genuine network shares under `/Volumes`, so macOS system and autofs volumes (for example the `auto_home` map named `home`) no longer trigger a false "Mounted Wrong" / duplicate state
 - Posts a quiet macOS notification when a share newly needs attention, instead of relying on the popup alone
 - Detects `/Volumes` name conflicts before mounting and blocks risky connects
+- Marks each share with a status icon — connected, ready, unreachable, needs credentials, needs repair, or blocked — with the wording on hover and for VoiceOver
+- Provides in-app help (`?` in the menu, or Settings → Help) with a Quick Start and an Advanced section
+- Checks GitHub for newer releases on demand and quietly once a day; it compares version numbers only, installs nothing itself, and sends no device or share information
 - Exports and imports JSON configuration files
 - Reads managed share definitions from an MDM profile
 
