@@ -22,10 +22,13 @@ The popover shows:
 - a top banner with current active wired network information
 - a `Connection Summary` section
 - a `Shares` section with one status card per configured share
-- `Refresh`, `Connect All`, `Settings`, and `Quit` actions at the bottom
-- the app version next to the `Quit` button for a quick peek (also shown, with build number, in the bottom-left of the Settings window)
+- `Refresh` and `Connect All` as the main actions at the bottom
+- a row beneath them with `Settings`, `Help`, `Check for Updates`, and `Quit`
+- the app version in that same row for a quick peek (also shown, with build number, in the bottom-left of the Settings window)
 
-The top banner and the bottom action row (including `Quit`) stay pinned in place. Only the `Connection Summary` and `Shares` sections scroll, so the title and buttons remain visible no matter how many shares you have configured.
+`Connect All` is highlighted as the primary action. Hover any of the smaller buttons for a description of what it does.
+
+The top banner and the bottom action rows (including `Quit`) stay pinned in place. Only the `Connection Summary` and `Shares` sections scroll, so the title and buttons remain visible no matter how many shares you have configured.
 
 ### 2. Read The Connection Summary
 
@@ -46,12 +49,38 @@ A card shows:
 
 - the share alias
 - the SMB share name
+- a status icon and a source badge, at the top right
 - a `Connection` pill
 - a `Status` pill
 - a `Network` pill
 - a summary line
 - a detail line
 - an action button such as `Connect`, `Disconnect`, `Fix Connection…`, or `Complete Setup…`
+
+Long share names are shortened with a trailing `…`. Hover the name to see it in full.
+
+#### Status Icon Legend
+
+The icon at the top right of each card is an at-a-glance version of the same state the
+`Connection` and `Status` pills spell out below it. Hover any icon to see its wording.
+
+| Icon | Meaning | What to do |
+|------|---------|------------|
+| ✅ green check | Connected — the share is mounted | Nothing |
+| ◌ blue dashed circle | Ready — a network path is reachable and credentials are saved | Press `Connect` |
+| 🚫 grey crossed-out Wi-Fi | Not connected — no configured endpoint responded on port 445 | Check the server is on and reachable |
+| 🔑 yellow key | Setup needed — no credentials saved for this share | Press `Complete Setup…` |
+| ⚠️ red triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
+| ⛔ red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
+| ❌ red cross octagon | Error | Read the detail line beneath the card |
+
+#### Source Badge
+
+Beside the status icon, a badge shows where the share's configuration came from:
+
+- `User` — added by you in Settings
+- `JSON` — imported from a setup file
+- `MDM` — supplied by a managed configuration profile and locked
 
 ### 4. Understand The Main Pills
 
@@ -190,6 +219,40 @@ Use it after:
 - renaming or removing an item in `/Volumes`
 - disconnecting or reconnecting shares outside the app
 
+## In-App Help
+
+You do not need this guide open to get going. SMB Connect has help built in.
+
+Press the `?` button in the menu bar popup, or open **Settings → Help → Getting Started**.
+The Help window has two tabs:
+
+- **Quick Start** — adding a share, saving credentials, connecting, and a visual legend
+  for the status icons, plus how to make mounting fully automatic.
+- **Advanced** — preferred and fallback network paths, shares over VPN, duplicate mounts
+  and `-1` paths, volume name conflicts, deploying to many Macs, update checking, and what
+  `Refresh` does.
+
+Both tabs link back to this full guide.
+
+## Checking For Updates
+
+SMB Connect can tell you when a newer version has been published.
+
+**On demand** — press `Check for Updates…` in the footer of the menu bar popup. This
+always checks and always reports back, including when nothing newer exists. If your copy
+is newer than the published release, it says so and names both versions rather than
+claiming a match.
+
+**Automatically** — the app also checks quietly when it launches, at most once every 24
+hours. This check is silent unless a newer version is found, in which case an alert
+offers a `Download` button that opens the release page in your browser.
+
+Nothing is downloaded or installed for you. The check reads only the published version
+number and compares it against the running app, and no information about your Mac or your
+share configuration is sent.
+
+Pre-release builds are not offered. You will only be told about full releases.
+
 ## Settings Window
 
 Open `Settings…` from the menu bar popover.
@@ -211,6 +274,7 @@ This contains:
 
 - `Launch at login`
 - `Connect all shares on start`
+- `Auto-reconnect dropped shares`
 - `Setup Folder`
 - `Refresh Status`
 
@@ -218,7 +282,9 @@ This contains:
 
 `Connect all shares on start` automatically connects every share that is in a ready state after the app finishes its first status check on launch. This works the same as pressing `Connect All` manually — only shares with saved credentials and a reachable network path are attempted. Shares with issues are skipped.
 
-Pairing `Launch at login` with `Connect all shares on start` gives a fully automatic mount experience: the app opens at login and connects all ready shares without any user interaction.
+`Auto-reconnect dropped shares` monitors connected shares and automatically reconnects any that drop while the server is still reachable. When a share transitions from mounted to unmounted and SMB Connect can still reach the server on TCP port 445, the app disconnects any stale mount points and reconnects cleanly via the best available network path. A 60-second cooldown per share prevents rapid-fire reconnect attempts if the server is flapping. This is enabled by default.
+
+Pairing `Launch at login` with `Connect all shares on start` and `Auto-reconnect dropped shares` gives a fully automatic mount experience: the app opens at login, connects all ready shares without any user interaction, and keeps them connected if a transient network drop occurs.
 
 `Setup Folder` is where the app looks for setup JSON files on startup and refresh:
 
@@ -254,12 +320,6 @@ Examples and usage details are here:
 
 - [Config Generator README](README-config-generator.md)
 
-If you already have a setup JSON and only need the matching MDM profile, convert
-it directly:
-
-- [json_to_mobileconfig.sh](json_to_mobileconfig.sh)
-- [JSON → Profile README](README-json-to-mobileconfig.md)
-
 ### Share Settings
 
 This section defines the core share identity.
@@ -275,7 +335,7 @@ Fields:
 - `Protocol`
   Currently `smb`.
 - `Share Name`
-  The SMB share path, such as `Outputs` in `smb://server/Video`.
+  The SMB share path, such as `Outputs` in `smb://server/Outputs`.
 - `Mount Name`
   The volume name expected in `/Volumes` after the share is mounted.
 - `Default Username`
@@ -330,6 +390,33 @@ This section shows the live status for the selected share and any repair guidanc
 
 If the share needs repair or attention, this section explains why.
 
+## Ways To Create Configuration
+
+There are several ways to produce share definitions, depending on what you start
+from. They all end in one of two artifacts: a **setup JSON** (imported per user
+in the app) or an **MDM `.mobileconfig` profile** (pushed by IT).
+
+| Starting point | Tool | Produces |
+| --- | --- | --- |
+| Typing shares by hand | The app's `Settings…` window | Local config (export to JSON) |
+| Shares already mounted on a Mac | **Mount Import Assistant** app, or [`mount_to_smbconnect_config.sh`](mount_to_smbconnect_config.sh) | Setup JSON |
+| A spreadsheet / server list | [`generate_smbconnect_config.sh`](generate_smbconnect_config.sh) | Setup JSON **and** `.mobileconfig` |
+| An existing setup JSON | [`json_to_mobileconfig.sh`](json_to_mobileconfig.sh) | `.mobileconfig` |
+
+- **In the app** — add and edit shares in `Settings…`, then `Export` to a JSON
+  file for backup or to seed another Mac. See `Import / Export` above.
+- **Mount Import Assistant** — a small companion app that reads the SMB shares
+  already mounted on a Mac and writes a setup JSON, so you can bootstrap a config
+  from a machine that is already working. The same workflow is available on the
+  command line via `mount_to_smbconnect_config.sh`. See
+  [scripts/README-mount-import.md](README-mount-import.md).
+- **Generator script** — turn a `.csv`/`.txt` server list into both a setup JSON
+  and a matching profile in one step. See
+  [scripts/README-config-generator.md](README-config-generator.md).
+- **JSON → profile converter** — when you already have a setup JSON and just need
+  the deployable MDM profile. See
+  [scripts/README-json-to-mobileconfig.md](README-json-to-mobileconfig.md).
+
 ## JSON Configuration
 
 SMB Connect can import and export JSON share definitions.
@@ -353,6 +440,12 @@ JSON can define:
 
 Passwords are intentionally omitted.
 
+See:
+
+- [Configuration Format](CONFIGURATION-FORMAT.md)
+- [SMBConnectSetup-EXAMPLE.json](examples/SMBConnectSetup-EXAMPLE.json)
+- [SMBConnectSetup-DEMO-SIX-SERVERS.json](examples/SMBConnectSetup-DEMO-SIX-SERVERS.json)
+
 ## MDM Profile Configuration
 
 SMB Connect also supports an MDM profile that preloads managed share definitions.
@@ -369,8 +462,16 @@ This is useful when IT wants to push:
 The user can still enter and store their own password locally in Keychain.
 
 You can build the profile directly from a setup JSON with
-[json_to_mobileconfig.sh](json_to_mobileconfig.sh). Two options shape how it
-behaves on the user's Mac:
+[`json_to_mobileconfig.sh`](json_to_mobileconfig.sh):
+
+```bash
+./scripts/json_to_mobileconfig.sh \
+  -i ./Config/SMBConnectSetup-AVNAS.json \
+  -o ./Config/generated/SMBConnectSetup-AVNAS.mobileconfig \
+  --organization "Your Org"
+```
+
+Two options shape how the profile behaves on the user's Mac:
 
 - `--allow-user-defined true|false` — with `true` (the default) a deployed
   profile **keeps** each user's own imported shares and merges the managed ones
@@ -380,9 +481,7 @@ behaves on the user's Mac:
   every user enters their own. Without it, the username from the JSON is baked
   into the profile and is identical (and locked) for all users on the device.
 
-Passwords are never written to the profile. Full usage:
-
-- [JSON → Profile README](README-json-to-mobileconfig.md)
+Passwords are never written to the profile.
 
 ### Entering Credentials For A Managed Share
 
@@ -399,16 +498,24 @@ are saved to the user's Keychain and reused on every connect.
 > an earlier build, install v0.5.2 and re-enter the credentials once; the profile
 > itself does not need to be redeployed.
 
+See:
+
+- [com.matx.SMBConnect.mobileconfig](examples/com.matx.SMBConnect.mobileconfig)
+- [scripts/README-json-to-mobileconfig.md](README-json-to-mobileconfig.md)
+
 ## Recommended Admin Workflow
 
-1. Create share definitions in JSON or MDM.
+1. Create share definitions using one of the methods in
+   [Ways To Create Configuration](#ways-to-create-configuration) — type them in
+   the app, import existing mounts with the Mount Import Assistant, or generate
+   them from a server list.
 2. Preload alias, share name, mount name, and preferred/fallback IPs.
 3. Optionally preload a default username, or use `--blank-username` so each user
    supplies their own.
 4. To deploy by MDM, convert the JSON with
-   [json_to_mobileconfig.sh](json_to_mobileconfig.sh) (or generate the profile
-   directly). Keep `--allow-user-defined true` unless you want to lock users to
-   only the managed shares.
+   [`json_to_mobileconfig.sh`](json_to_mobileconfig.sh) (or generate
+   the profile directly). Keep `--allow-user-defined true` unless you want to
+   lock users to only the managed shares.
 5. Let the user open the app and save their password locally in Keychain.
 6. Have the user connect from the menu bar app.
 
@@ -434,19 +541,6 @@ Check:
 - whether credentials were saved in Keychain
 - whether the target SMB server is reachable
 
-### `Authentication failed` (Previously `Mount failed (error 80)`)
-
-This means the SMB server rejected the username or password for that share. macOS reports this as error `80` (`EAUTH`); from v0.5.3 build 12 the app shows the clearer "Authentication failed. Check the username and password in Settings." message instead of the raw code.
-
-To fix it:
-
-1. Open `Settings…` and select the share.
-2. Re-enter the `Username` and `Password` in the `Credentials` section and `Save Credentials`.
-3. Confirm the account exists on the server and has access to that share.
-4. Return to the menu bar app and connect again.
-
-If `Connect all shares on start` is enabled and a credential is wrong, the failure now appears quietly on the status line above the buttons rather than as a pop-up alert, so it will not interrupt you when the menu opens. Connect the share manually after fixing the credential to see the detailed message.
-
 ### The App Says `Volume Name Conflict`
 
 There is already a local item in `/Volumes` using the mount name.
@@ -462,3 +556,22 @@ Use the repair workflow or manually disconnect all matching mounts and reconnect
 If the app says the share is on a fallback or slower path, use the repair flow to disconnect and reconnect on the preferred network when available.
 
 > **Fixed in v0.5.3.** Earlier builds (v0.5.1 and v0.5.2) could falsely report `Mounted Wrong` or a duplicate for a share whose name matched a macOS system/autofs volume — most commonly a share called `Home`, which collided with the built-in `auto_home` volume named `home` — even though there was no real mount and no `-1` volume in `/Volumes`. v0.5.3 restricts detection to genuine network shares under `/Volumes`. If you saw this, install v0.5.3 and press `Refresh`.
+
+### A Share Keeps Disconnecting And Reconnecting
+
+If a share repeatedly drops and auto-reconnects, the underlying NAS or network path is unstable. SMB Connect enforces a 60-second cooldown between reconnect attempts for the same share to prevent thrashing. Check:
+
+- the physical network connection to the NAS
+- whether the NAS is under heavy load or restarting services
+- whether a VPN or firewall is intermittently blocking SMB traffic on port 445
+
+If the flapping continues, consider disabling `Auto-reconnect dropped shares` in Settings → General until the network issue is resolved.
+
+### Auto-Reconnect Is Not Triggering
+
+Auto-reconnect only fires when the share transitions from mounted to unmounted while the server is still reachable. It will not trigger if:
+
+- the server itself is down or unreachable (the share shows `Unavailable`, not `Ready`)
+- the share was never mounted in the current session (the app must have seen it mounted at least once)
+- the 60-second cooldown from a previous reconnect attempt has not elapsed
+- `Auto-reconnect dropped shares` is turned off in Settings → General

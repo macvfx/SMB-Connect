@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadType</key>
+			<string>com.matx.SMBConnect</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadIdentifier</key>
+			<string>com.matx.SMBConnect.settings</string>
+			<key>PayloadUUID</key>
+			<string>B95D3E5B-6846-40A1-8B2F-8A6ED6F0D201</string>
+			<key>PayloadDisplayName</key>
+			<string>SMB Connect Settings</string>
+
+			<key>AllowUserDefinedShares</key>
+			<true/>
+
+			<key>ManagedShares</key>
+			<array>
+				<dict>
+					<key>alias</key>
+					<string>Outputs NAS</string>
+					<key>protocol</key>
+					<string>smb</string>
+					<key>shareName</key>
+					<string>Outputs</string>
+					<key>mountName</key>
+					<string>Outputs</string>
+					<key>defaultUsername</key>
+					<string>editor</string>
+					<key>note</key>
+					<string>Main outputs share. Preferred network is 10GbE with 1GbE fallback. Password is intentionally not stored in the MDM payload. Users save it locally in Keychain.</string>
+					<key>endpoints</key>
+					<array>
+						<dict>
+							<key>serverIP</key>
+							<string>192.0.2.245</string>
+							<key>networkType</key>
+							<string>10gbe</string>
+							<key>priority</key>
+							<integer>0</integer>
+							<key>subnetPrefix</key>
+							<integer>24</integer>
+							<key>label</key>
+							<string>Preferred 10GbE Network</string>
+						</dict>
+						<dict>
+							<key>serverIP</key>
+							<string>198.51.100.245</string>
+							<key>networkType</key>
+							<string>1gbe</string>
+							<key>priority</key>
+							<integer>10</integer>
+							<key>subnetPrefix</key>
+							<integer>24</integer>
+							<key>label</key>
+							<string>Fallback 1GbE Network</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<key>alias</key>
+					<string>Archive NAS</string>
+					<key>protocol</key>
+					<string>smb</string>
+					<key>shareName</key>
+					<string>Archive</string>
+					<key>mountName</key>
+					<string>Archive</string>
+					<key>defaultUsername</key>
+					<string>archiveuser</string>
+					<key>note</key>
+					<string>Single-path archive share on 1GbE. Password remains user-local in Keychain.</string>
+					<key>endpoints</key>
+					<array>
+						<dict>
+							<key>serverIP</key>
+							<string>203.0.113.30</string>
+							<key>networkType</key>
+							<string>1gbe</string>
+							<key>priority</key>
+							<integer>0</integer>
+							<key>subnetPrefix</key>
+							<integer>24</integer>
+							<key>label</key>
+							<string>Preferred 1GbE Network</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>SMB Connect Configuration</string>
+	<key>PayloadIdentifier</key>
+	<string>com.matx.SMBConnect.profile</string>
+	<key>PayloadOrganization</key>
+	<string>Your Organization</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>0D758248-CB8B-496F-9E3A-A01D04964C28</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

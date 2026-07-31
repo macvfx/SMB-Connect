@@ -1,0 +1,48 @@
+{
+  "configDate" : "20260419",
+  "shares" : [
+    {
+      "alias" : "Outputs NAS",
+      "connectionProtocol" : "smb",
+      "shareName" : "Outputs",
+      "mountName" : "Outputs",
+      "defaultUsername" : "editor",
+      "endpoints" : [
+        {
+          "serverIP" : "192.0.2.245",
+          "networkType" : "10gbe",
+          "priority" : 0,
+          "subnetPrefix" : 24,
+          "label" : "Primary 10GbE"
+        },
+        {
+          "serverIP" : "198.51.100.245",
+          "networkType" : "1gbe",
+          "priority" : 10,
+          "subnetPrefix" : 24,
+          "label" : "Fallback 1GbE"
+        }
+      ],
+      "note" : "Main outputs share. Password is not stored in JSON. Save it locally in the app so SMB Connect can store it in Keychain.",
+      "source" : "imported"
+    },
+    {
+      "alias" : "Archive NAS",
+      "connectionProtocol" : "smb",
+      "shareName" : "Archive",
+      "mountName" : "Archive",
+      "defaultUsername" : "archiveuser",
+      "endpoints" : [
+        {
+          "serverIP" : "203.0.113.30",
+          "networkType" : "1gbe",
+          "priority" : 0,
+          "subnetPrefix" : 24,
+          "label" : "Single 1GbE Path"
+        }
+      ],
+      "note" : "Single-path share. Username can be preloaded. Password must still be saved in Keychain by the user.",
+      "source" : "imported"
+    }
+  ]
+}
