@@ -84,7 +84,7 @@
       "defaultUsername" : "archiveuser",
       "endpoints" : [
         {
-          "serverIP" : "172.20.30.104",
+          "serverIP" : "192.0.2.104",
           "networkType" : "1gbe",
           "priority" : 0,
           "subnetPrefix" : 24,
