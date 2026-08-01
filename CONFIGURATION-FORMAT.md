@@ -127,8 +127,8 @@ produced by another script) and only need the matching `.mobileconfig`, use:
 
 ```bash
 ./json_to_mobileconfig.sh \
-  -i ./SMBConnectSetup-AVNAS.json \
-  -o ./SMBConnectSetup-AVNAS.mobileconfig \
+  -i ./SMBConnectSetup-EXAMPLE.json \
+  -o ./SMBConnectSetup-EXAMPLE.mobileconfig \
   --organization "Your Org"
 ```
 

@@ -18,8 +18,8 @@ The script is here:
 ```bash
 chmod +x ./json_to_mobileconfig.sh
 ./json_to_mobileconfig.sh \
-  -i ./SMBConnectSetup-AVNAS.json \
-  -o ./SMBConnectSetup-AVNAS.mobileconfig \
+  -i ./SMBConnectSetup-EXAMPLE.json \
+  -o ./SMBConnectSetup-EXAMPLE.mobileconfig \
   --organization "Your Org"
 ```
 

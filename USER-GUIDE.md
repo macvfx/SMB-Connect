@@ -481,8 +481,8 @@ You can build the profile directly from a setup JSON with
 
 ```bash
 ./scripts/json_to_mobileconfig.sh \
-  -i ./Config/SMBConnectSetup-AVNAS.json \
-  -o ./Config/generated/SMBConnectSetup-AVNAS.mobileconfig \
+  -i ./Config/SMBConnectSetup-EXAMPLE.json \
+  -o ./Config/generated/SMBConnectSetup-EXAMPLE.mobileconfig \
   --organization "Your Org"
 ```
 
