@@ -72,6 +72,7 @@ The icon at the top right of each card is an at-a-glance version of the same sta
 | 🔑 yellow key | Setup needed — no credentials saved for this share | Press `Complete Setup…` |
 | ⚠️ red warning triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
 | 🛑 red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
+| 👤 red person badge | Blocked — another user logged in on this Mac has the volume mounted | See *What To Do When Another User Has The Volume* |
 | ❌ red cross | Error | Read the detail line beneath the card |
 
 Or follow it through:
@@ -119,6 +120,7 @@ This tells you whether the share is on the expected path:
 - `Duplicate`
 - `Setup`
 - `Blocked`
+- `In Use`
 
 There may also be a second share-state pill such as:
 
@@ -127,6 +129,7 @@ There may also be a second share-state pill such as:
 - `Reconnect`
 - `Setup Needed`
 - `Rename /Volumes Item`
+- `Other User`
 
 #### Network
 
@@ -193,6 +196,45 @@ Example:
 
 If the app mounted anyway, macOS could create `Video-1`, which is exactly what SMB Connect is trying to prevent.
 
+### Same Share Mounted Two Ways
+
+A server can be reached by more than one address — its IP, or a Bonjour name such as
+`nas4._smb._tcp.local` that the Finder's **Network** sidebar uses. macOS has no way to tell
+those are the same machine, so mounting the share through both gives you two volumes, the
+second suffixed:
+
+```
+/Volumes/Storage      from 192.0.2.50               (IP address)
+/Volumes/Storage-1    from nas4._smb._tcp.local     (Bonjour discovery)
+```
+
+This normally happens when a share is mounted once from SMB Connect and once by
+double-clicking the server in the Finder sidebar. The card names both addresses and which
+kind each is. Use `Fix Connection…` to disconnect every copy and reconnect once on the
+configured path, and mount from SMB Connect rather than the Finder sidebar to stop it
+coming back.
+
+A single mount from an address that is not one of the share's configured endpoints is
+called out too, before it has a chance to duplicate.
+
+### Mounted By Another User
+
+A volume is mounted at a `/Volumes` path once for the whole Mac, not once per user. If a
+second person is logged in through fast user switching and has already mounted the share,
+that path is taken and macOS would place your copy at `Video-1`.
+
+macOS gives their mount to their account alone — it is `drwx------` under their user ID —
+so from your session the folder exists but cannot be opened. Earlier versions of SMB
+Connect could not see who owned a mount and reported this as a local folder to rename,
+which was impossible advice.
+
+The share card now names the person holding it and whether they are still logged in. For
+example:
+
+> Jane Doe (jdoe) has this share mounted at `/Volumes/Video` and is logged in via fast
+> user switching. macOS cannot give you that path while they hold it, so connecting now
+> would mount Shared Video as `Video-1`.
+
 ## Why `-1` Mount Paths Matter
 
 If macOS mounts a share as `Video-1`, applications may record file paths using that full mounted path.
@@ -216,6 +258,43 @@ If the menu shows `Volume Name Conflict`:
 5. Connect again.
 
 If files are already open from that share, quit those apps first.
+
+## What To Do When Another User Has The Volume
+
+If the menu shows `Mounted by Another User`, the fix belongs to whoever holds the mount —
+SMB Connect cannot eject another account's volume, and neither can you without admin
+rights.
+
+If they are still logged in:
+
+1. Read the card to see who has it and whether they are at the display or switched away.
+2. Ask them to eject the volume in the Finder, or switch to their session and eject it.
+3. Alternatively, log that user out completely.
+4. Return to SMB Connect and press `Refresh`.
+5. Connect again.
+
+If the card says they are no longer logged in, the mount was left behind at logout. Press
+`Copy Unmount Command` and give the copied line to an admin to run in Terminal:
+
+```bash
+sudo umount '/Volumes/Video'
+```
+
+Then press `Refresh` and connect again.
+
+`Copy Diagnostics` copies the mount point, the owning account and user ID, their session
+state, the server and share behind the mount, and the SMB account they mounted with —
+useful when passing the problem to whoever administers the Mac.
+
+To confirm any of this yourself, `mount` in Terminal lists every mount with the account
+that made it:
+
+```bash
+mount | grep smbfs
+```
+
+Each SMB line ends with `mounted by <user>`, which is the same information SMB Connect
+now reads directly.
 
 ## What `Refresh` Does
 
@@ -560,6 +639,25 @@ Check:
 
 There is already a local item in `/Volumes` using the mount name.
 Open `/Volumes`, inspect the item, then rename or remove it before connecting.
+
+### The App Says `Same Share Mounted Two Ways`
+
+The share is mounted from two different addresses for the same server — typically its IP
+and its Bonjour `.local` name. Use `Fix Connection…`, then mount from SMB Connect rather
+than the Finder's Network sidebar.
+
+To see it yourself, `mount` in Terminal shows the address each mount came from:
+
+```bash
+mount | grep smbfs
+```
+
+### The App Says `Mounted by Another User`
+
+Another account logged in on this Mac holds the `/Volumes` path this share needs. Ask
+them to eject it or log them out, then press `Refresh`. If they have already logged out,
+an admin can clear the leftover mount with `sudo umount` — the card's `Copy Unmount
+Command` button gives you the exact line.
 
 ### The App Says `Duplicate Mount Detected`
 
