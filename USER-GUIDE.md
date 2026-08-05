@@ -199,13 +199,13 @@ If the app mounted anyway, macOS could create `Video-1`, which is exactly what S
 ### Same Share Mounted Two Ways
 
 A server can be reached by more than one address — its IP, or a Bonjour name such as
-`nas4._smb._tcp.local` that the Finder's **Network** sidebar uses. macOS has no way to tell
+`nas._smb._tcp.local` that the Finder's **Network** sidebar uses. macOS has no way to tell
 those are the same machine, so mounting the share through both gives you two volumes, the
 second suffixed:
 
 ```
 /Volumes/Storage      from 192.0.2.50               (IP address)
-/Volumes/Storage-1    from nas4._smb._tcp.local     (Bonjour discovery)
+/Volumes/Storage-1    from nas._smb._tcp.local     (Bonjour discovery)
 ```
 
 This normally happens when a share is mounted once from SMB Connect and once by
