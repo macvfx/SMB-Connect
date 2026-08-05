@@ -1,11 +1,32 @@
 # SMB Connect
 
-`v0.5.5` · `macOS 14+` · `SwiftUI` · `Menu Bar Utility`
+`v0.5.5` stable · `v0.6.0` beta · `macOS 14+` · `SwiftUI` · `Menu Bar Utility`
 
 SMB Connect is a macOS menu bar app for mounting SMB shares with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
-It is designed for environments where users regularly connect to multiple storage targets and need the app to:
+## Download
 
+- **[SMB Connect 0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5)** — current stable release
+- **[SMB Connect 0.6.0 beta (build 19)](https://github.com/macvfx/SMB-Connect/releases/tag/0.6.0%2B19)** — [download the DMG](https://github.com/macvfx/SMB-Connect/releases/download/0.6.0%2B19/SMBConnect.dmg)
+
+Every build is signed with a Developer ID certificate and notarized by Apple. Each
+release carries a `SMBConnect.sha256.txt` you can check the download against:
+
+```bash
+shasum -a 256 SMBConnect.dmg
+```
+
+The beta is a pre-release. It is complete and tested, but it has had less time in
+daily use than the stable build.
+
+## Release Highlights
+
+Newest first. SMB Connect is designed for environments where users regularly connect to
+multiple storage targets, and each release works towards that.
+
+- *NEW* v0.6.0 beta (build 19) says when **another user logged in on this Mac** already has the share mounted — naming who has it, whether they are still logged in, and where — instead of reporting a folder to rename that belongs to another account and cannot be opened from your session. A `/Volumes` path is claimed once for the whole Mac, not once per user.
+- *NEW* v0.6.0 beta detects **one server mounted through two different addresses** — its IP and its Bonjour `.local` name, which is what the Finder's **Network** sidebar uses. macOS cannot tell those are the same machine, so mounting through both gives you two volumes and the second gets a `-1`. The share now names both addresses, and `Fix Connection…` clears it.
+- *FIXED* v0.6.0 beta no longer reports a share as connected when the mount belongs to another user's account, and says so immediately if macOS has to place a mount at `-1` rather than leaving you to find the suffixed path later in Final Cut Pro.
 - *NEW* v0.5.5 (build 14) adds built-in help — press `?` in the menu or open Settings → Help — with a **Quick Start** (add a share, save credentials, connect, read the status icons) and an **Advanced** section (preferred/fallback paths, VPN, duplicate mounts, `/Volumes` conflicts, MDM deployment). Adds **Check for Updates**, which compares version numbers only, installs nothing, and sends no device or share information.
 - *FIXED* v0.5.5 stops long share names garbling the status badges beside them — the share card header now carries a single status icon (wording on hover and for VoiceOver) plus the source badge, with the full detail still spelled out in the pills below. The menu footer now marks `Connect All` as the primary action, with Settings, Help, Check for Updates and Quit in a lighter row beneath it.
 - *FIXED* v0.5.4 (build 13) connects to shares that are reachable only over a VPN or routed network (WireGuard, Tailscale, corporate, inter-VLAN). Endpoint selection no longer requires the server IP to be on a local subnet — it keeps subnet matching as a fast path, then falls back to probing every configured endpoint and connects to whichever answers on SMB (TCP port 445). Connections made over a routed path are tagged `(via VPN)` in the status detail.
@@ -33,6 +54,8 @@ The app also has help built in: press `?` in the menu bar popup, or open
 - Connects all ready shares in one click (`Connect All`, `⌘K`) or automatically on app start
 - Auto-reconnects dropped shares when the server is still reachable, with stale mount cleanup and a 60-second cooldown
 - Detects duplicate mounts such as `Video` and `Video-1`
+- Reads mount ownership from the system mount table, so a share held by another logged-in user is named rather than mistaken for a stale folder or for one of your own mounts
+- Recognises when one server has been mounted through two different addresses — its IP and its Bonjour `.local` name — which macOS treats as two separate volumes
 - Limits mount detection to genuine network shares under `/Volumes`, so macOS system and autofs volumes (for example the `auto_home` map named `home`) no longer trigger a false "Mounted Wrong" / duplicate state
 - Posts a quiet macOS notification when a share newly needs attention, instead of relying on the popup alone
 - Detects `/Volumes` name conflicts before mounting and blocks risky connects
