@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.5.5` stable · `v0.7.2` beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.7.2` current · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -15,8 +15,7 @@ Same shares, same settings, same saved passwords. Install either, or both — th
 
 ## Download
 
-- **[SMB Connect 0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5)** — current stable release
-- **[SMB Connect 0.7.2 beta (build 22)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.2%2B22)** — current beta, three downloads:
+- **[SMB Connect 0.7.2 (build 22)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.2%2B22)** — current release, three downloads:
 
 | Download | Contains |
 |---|---|
@@ -34,8 +33,10 @@ download has a matching `.sha256.txt` in the release you can check it against:
 shasum -a 256 SMBConnect.dmg
 ```
 
-The beta is a pre-release. It is complete and tested, but it has had less time in
-daily use than the stable build.
+0.7.2 is newer than the long-standing
+[0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5) and has had
+less time in daily use, so 0.5.5 remains available if you would rather stay on
+it.
 
 ## Release Highlights
 
