@@ -1,13 +1,22 @@
 # SMB Connect
 
-`v0.5.5` stable · `v0.6.0` beta · `macOS 14+` · `SwiftUI` · `Menu Bar Utility`
+`v0.5.5` stable · `v0.7.0` beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
-SMB Connect is a macOS menu bar app for mounting SMB shares with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
+SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
+
+From v0.7.0 it comes as **two apps**, and one download contains both:
+
+| | |
+|---|---|
+| **SMB Connect** | Menu bar only, no Dock icon |
+| **SMB Connect Desktop** | Dock icon and a resizable window |
+
+Same shares, same settings, same saved passwords. Install either, or both — they are built to run at the same time.
 
 ## Download
 
 - **[SMB Connect 0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5)** — current stable release
-- **[SMB Connect 0.6.0 beta (build 19)](https://github.com/macvfx/SMB-Connect/releases/tag/0.6.0%2B19)** — [download the DMG](https://github.com/macvfx/SMB-Connect/releases/download/0.6.0%2B19/SMBConnect.dmg)
+- **[SMB Connect 0.7.0 beta (build 20)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.0%2B20)** — [download the DMG](https://github.com/macvfx/SMB-Connect/releases/download/0.7.0%2B20/SMBConnect.dmg) — contains both apps
 
 Every build is signed with a Developer ID certificate and notarized by Apple. Each
 release carries a `SMBConnect.sha256.txt` you can check the download against:
@@ -24,6 +33,8 @@ daily use than the stable build.
 Newest first. SMB Connect is designed for environments where users regularly connect to
 multiple storage targets, and each release works towards that.
 
+- *NEW* v0.7.0 beta (build 20) adds **SMB Connect Desktop**, a second app with a Dock icon and a proper window — shares down the left, and the selected one filling the right with the things the menu bar popup has to shorten: the full explanation when another user holds a volume, every configured network path with the one in use marked, and the complete repair guidance. Closing its window does not quit it. Both apps share one configuration and are built to run side by side.
+- *FIXED* v0.7.0 beta warns properly when you are on **Wi-Fi with no wired connection**. The banner previously only said anything when the Mac had no network at all, so a Wi-Fi-only Mac saw a reassuring blue "Active Networks". Shares mount fine over Wi-Fi — that is why it is worth flagging, because everything on them is simply far slower than the `1GbE` or `10GbE` path they are configured for.
 - *NEW* v0.6.0 beta (build 19) says when **another user logged in on this Mac** already has the share mounted — naming who has it, whether they are still logged in, and where — instead of reporting a folder to rename that belongs to another account and cannot be opened from your session. A `/Volumes` path is claimed once for the whole Mac, not once per user.
 - *NEW* v0.6.0 beta detects **one server mounted through two different addresses** — its IP and its Bonjour `.local` name, which is what the Finder's **Network** sidebar uses. macOS cannot tell those are the same machine, so mounting through both gives you two volumes and the second gets a `-1`. The share now names both addresses, and `Fix Connection…` clears it.
 - *FIXED* v0.6.0 beta no longer reports a share as connected when the mount belongs to another user's account, and says so immediately if macOS has to place a mount at `-1` rather than leaving you to find the suffixed path later in Final Cut Pro.
@@ -42,15 +53,17 @@ multiple storage targets, and each release works towards that.
 - **[User Guide](USER-GUIDE.md)** — setup, getting started, every feature, and troubleshooting
 - **[User Guide (PDF)](USER-GUIDE.pdf)** — the same guide as a printable download
 
-The app also has help built in: press `?` in the menu bar popup, or open
-**Settings → Help → Getting Started**, for a Quick Start and an Advanced section.
+Help is built in as well: press `?` in the menu bar popup, use **Help** in SMB
+Connect Desktop's menu bar, or open **Settings → Help → Getting Started**, for a
+Quick Start and an Advanced section.
 
 ## What The App Does
 
 - Configures shares by alias, share name, mount name, and one or more IP-based network paths
 - Detects active local networks and selects the best reachable configured path, including endpoints reachable only over a VPN or routed network (tagged `(via VPN)`)
 - Mounts SMB shares through macOS using stored user credentials
-- Shows connection state in the menu bar popover with per-share status cards
+- Shows connection state in the menu bar popover with per-share status cards, or in SMB Connect Desktop's window with a share list beside a full detail pane
+- Warns when the Mac is on Wi-Fi with no wired path, since shares mount over Wi-Fi perfectly well and simply run far slower than the wired path they are configured for
 - Connects all ready shares in one click (`Connect All`, `⌘K`) or automatically on app start
 - Auto-reconnects dropped shares when the server is still reachable, with stale mount cleanup and a 60-second cooldown
 - Detects duplicate mounts such as `Video` and `Video-1`

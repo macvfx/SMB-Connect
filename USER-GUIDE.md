@@ -2,24 +2,41 @@
 
 ## Overview
 
-SMB Connect is a menu bar app for connecting to SMB shares by IP address while preferring the fastest configured network path.
+SMB Connect connects to SMB shares by IP address while preferring the fastest configured network path.
 
 Typical uses:
 
 - connect to the same storage over `10GbE` when available and `1GbE` when not
-- keep several shares ready in one menu bar utility
+- keep several shares ready in one utility
 - preload share definitions from JSON or MDM
 - let each user store their own password locally in Keychain
 
+## Two Apps To Choose From
+
+SMB Connect comes as two applications. They do the same job and share everything; pick whichever suits you, or use both.
+
+| App | Where it lives | Best when |
+|---|---|---|
+| **SMB Connect** | Menu bar only, no Dock icon | You want it out of the way and only glance at it |
+| **SMB Connect Desktop** | Dock icon and a window | You want a window you can leave open, resize and read properly |
+
+Both show the same shares, use the same settings, and use the same saved passwords. Connect a share in one and the other shows it as connected. You can install one or both, and run both at once.
+
+The **Desktop** app has more room, so it shows the things the menu bar popup has to shorten: the full explanation when another user is holding a volume, every network path configured for a share with the one in use marked, and the complete repair guidance. Its actions are also in menus with keyboard shortcuts — `⌘R` refresh, `⌘K` connect all, `⇧⌘K` disconnect all.
+
+Closing the Desktop app's window does not quit it. It keeps watching your shares and reconnecting them; click its Dock icon to bring the window back. Use **Quit** in its menu to stop it completely.
+
+One note on passwords: the first time the second app connects a share, macOS asks permission to use the saved password. Choose **Always Allow**. This happens once per share.
+
 ## How To Use The App
 
-### 1. Open The Menu Bar App
+### 1. Open The App
 
-Click the SMB Connect drive icon in the macOS menu bar.
+Click the SMB Connect drive icon in the macOS menu bar, or open **SMB Connect Desktop** from your Applications folder or the Dock.
 
 The popover shows:
 
-- a top banner with current active wired network information
+- a top banner with your current network information, which turns orange to warn you when the Mac is on Wi-Fi with no wired connection
 - a `Connection Summary` section
 - a `Shares` section with one status card per configured share
 - `Refresh` and `Connect All` as the main actions at the bottom
@@ -295,6 +312,16 @@ mount | grep smbfs
 
 Each SMB line ends with `mounted by <user>`, which is the same information SMB Connect
 now reads directly.
+
+## Wi-Fi Warning
+
+The banner at the top turns orange and reads **Wi-Fi only — no wired network** when your Mac has Wi-Fi but no Ethernet connection.
+
+This is a warning, not an error. Shares mount perfectly well over Wi-Fi — that is exactly why it is worth flagging. Nothing fails, nothing reports an error, and the only symptom is that everything you do on that storage is far slower than it should be. Your shares are configured for a wired `1GbE` or `10GbE` path, and for editing work that path is the one you want.
+
+If you see it, plug in Ethernet and press `Refresh`.
+
+Thunderbolt bridges and VPN tunnels are shown but not judged either way — the app cannot tell a 10GbE Thunderbolt adapter from a tunnel, so it reports the connection and leaves the verdict to you.
 
 ## What `Refresh` Does
 
