@@ -23,7 +23,7 @@ SMB Connect can:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `alias` | string | Yes | Display name shown in the menu bar popover and settings. |
+| `alias` | string | Yes | Display name shown wherever the share appears — the menu bar popover, the Dock app's share list, and Settings. |
 | `connectionProtocol` | string | No | Protocol string. Currently only `"smb"`. Defaults to `"smb"` if absent. |
 | `shareName` | string | Yes | The SMB share path component, e.g. `Exports` in `smb://server/Exports`. |
 | `mountName` | string | No | The volume name expected under `/Volumes` after mounting. Defaults to `shareName` if absent. |
