@@ -56,6 +56,12 @@ The `Connection Summary` section gives a quick count of:
 - `Fallback`
 - `Attention`
 
+`Attention` counts only shares you can actually do something about — a duplicate
+or wrong-path mount, a `/Volumes` name conflict, a volume another user is
+holding, or a share still needing credentials. A share that is simply offline
+because its server is switched off or you are away from that network is **not**
+counted, and shows a grey icon rather than a red one.
+
 Below that is a one-line summary per share so you can quickly scan which shares are connected and on what network speed.
 
 ### 3. Read A Share Card
@@ -84,8 +90,9 @@ The icon at the top right of each card is an at-a-glance version of the same sta
 | Icon | Meaning | What to do |
 |------|---------|------------|
 | ✅ green check | Connected — the share is mounted | Nothing |
+| ✅ green check + orange `Fallback` | Connected, but on a fallback network path rather than the preferred one | Nothing, unless you expected the faster path |
 | ◌ blue dashed circle | Ready — a network path is reachable and credentials are saved | Press `Connect` |
-| 🚫 grey crossed-out Wi-Fi | Not connected — no configured endpoint responded on port 445 | Check the server is on and reachable |
+| 🚫 grey crossed-out Wi-Fi | Offline — no configured endpoint responded on port 445. Grey, not red: nothing is broken, the server simply is not answering | Check the server is on and that you are on the right network |
 | 🔑 yellow key | Setup needed — no credentials saved for this share | Press `Complete Setup…` |
 | ⚠️ red warning triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
 | 🛑 red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
@@ -174,6 +181,11 @@ The share is mounted and the app believes it is using the fastest configured pre
 ### Connected On Fallback Network
 
 The share is mounted, but the preferred path is not active or not selected.
+
+The check mark stays **green** — the share is connected and there is nothing
+wrong with it. The word **Fallback** is what appears in orange, along with the
+`Network` pill, because the only thing worth your attention is that you are on
+the slower path. A green check always means connected.
 
 ### Preferred Network Available
 

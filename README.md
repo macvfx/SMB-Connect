@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.5.5` stable · `v0.7.1` beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.5.5` stable · `v0.7.2` beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -16,13 +16,13 @@ Same shares, same settings, same saved passwords. Install either, or both — th
 ## Download
 
 - **[SMB Connect 0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5)** — current stable release
-- **[SMB Connect 0.7.1 beta (build 21)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.1%2B21)** — current beta, three downloads:
+- **[SMB Connect 0.7.2 beta (build 22)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.2%2B22)** — current beta, three downloads:
 
 | Download | Contains |
 |---|---|
-| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.1%2B21/SMBConnect.dmg) | **SMB Connect** — menu bar app, no Dock icon |
-| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.1%2B21/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — Dock icon and a window |
-| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.1%2B21/SMBConnect-Both-Apps.dmg) | Both, in one image |
+| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnect.dmg) | **SMB Connect** — menu bar app, no Dock icon |
+| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — Dock icon and a window |
+| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnect-Both-Apps.dmg) | Both, in one image |
 
 Take whichever you want — either app works on its own, and the two are built to
 run side by side over one configuration.
@@ -42,6 +42,7 @@ daily use than the stable build.
 Newest first. SMB Connect is designed for environments where users regularly connect to
 multiple storage targets, and each release works towards that.
 
+- *FIXED* v0.7.2 beta (build 22) makes the status colours say one thing at a time. A share connected on its **fallback** path showed an orange check mark — a warning colour on the icon that means "connected", repeating what the orange **Fallback** label beside it already said. A green check now always means connected, and only the wording turns orange. An **offline** share is grey rather than red and no longer counts as needing attention: a server that is switched off, or being away from that network, is not something you can fix.
 - *FIXED* v0.7.1 beta (build 21) makes **Connect All** work in SMB Connect Desktop. In 0.7.0 the `Shares` menu decided once at launch — before the app had finished looking at your network — whether anything was connectable, and never checked again, so **Connect All** and **Disconnect All** were greyed out for as long as the app was open. Connect All is also a properly labelled toolbar button now rather than an unlabelled icon.
 - *NEW* v0.7.0 beta (build 20) adds **SMB Connect Desktop**, a second app with a Dock icon and a proper window — shares down the left, and the selected one filling the right with the things the menu bar popup has to shorten: the full explanation when another user holds a volume, every configured network path with the one in use marked, and the complete repair guidance. Closing its window does not quit it. Both apps share one configuration and are built to run side by side.
 - *FIXED* v0.7.0 beta warns properly when you are on **Wi-Fi with no wired connection**. The banner previously only said anything when the Mac had no network at all, so a Wi-Fi-only Mac saw a reassuring blue "Active Networks". Shares mount fine over Wi-Fi — that is why it is worth flagging, because everything on them is simply far slower than the `1GbE` or `10GbE` path they are configured for.
