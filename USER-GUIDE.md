@@ -187,6 +187,21 @@ wrong with it. The word **Fallback** is what appears in orange, along with the
 `Network` pill, because the only thing worth your attention is that you are on
 the slower path. A green check always means connected.
 
+Once the preferred path comes back — the wired network returns, or the server
+starts answering on it again — the share's button changes to
+`Switch to Preferred…`. It disconnects the share and mounts it once on the
+preferred path.
+
+Quit Final Cut Pro and anything else with files open on that share first. macOS
+cannot move a mount without taking it away, and an application holding a file
+across the switch will lose it. The app asks for confirmation before it does
+anything.
+
+The button only says `Switch to Preferred` when the preferred path is the one it
+will actually use. If your fastest path is still down and only a middle fallback
+is reachable, it reads `Fix Connection…` instead — the mount is still worth
+repairing, but it is not going where the other label would imply.
+
 ### Preferred Network Available
 
 The share is not mounted yet, but the preferred network path appears reachable and ready.
@@ -430,6 +445,7 @@ This section is for:
 - `Import JSON…`
 - `Export JSON…`
 - `Open Setup Folder`
+- `Export Diagnostics…`
 
 Use `Import JSON…` to load a setup file manually from anywhere.
 
@@ -452,6 +468,34 @@ and generates both output formats for SMB Connect.
 Examples and usage details are here:
 
 - [Config Generator README](README-config-generator.md)
+
+### Reporting A Problem
+
+SMB Connect records what it does to the macOS unified log: every connection
+state change, every network path it selects, and every mount and unmount along
+with what asked for it — you, a repair, a switch to the preferred path, or
+automatic reconnection. It also records the mounts and unmounts **macOS**
+performs on its own, which is what tells you whether shares dropped because the
+app disconnected them or because the network did.
+
+`Export Diagnostics…` writes that log, together with your configured shares and
+their current states, the live network interfaces and the current mount table,
+into a single text file and reveals it in the Finder. Send that file with your
+report.
+
+Passwords and account names are not included.
+
+Export it while the problem is fresh. The report covers the last two hours, and
+macOS discards older entries on its own schedule.
+
+If you would rather read the log directly:
+
+```bash
+log show --predicate 'subsystem == "com.matx.SMBConnect"' --last 1h --style compact
+```
+
+One command covers both apps — the menu bar app appears as `SMBConnect` and the
+Dock app as `SMBConnectDesktop`.
 
 ### Share Settings
 

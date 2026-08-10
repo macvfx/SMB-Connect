@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.7.2` current · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.7.3` current · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -15,13 +15,13 @@ Same shares, same settings, same saved passwords. Install either, or both — th
 
 ## Download
 
-- **[SMB Connect 0.7.2 (build 22)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.2%2B22)** — current release, three downloads:
+- **[SMB Connect 0.7.3 (build 26)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.3%2B26)** — current release, three downloads:
 
 | Download | Contains |
 |---|---|
-| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnect.dmg) | **SMB Connect** — menu bar app, no Dock icon |
-| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — Dock icon and a window |
-| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.2%2B22/SMBConnect-Both-Apps.dmg) | Both, in one image |
+| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnect.dmg) | **SMB Connect** — menu bar app, no Dock icon |
+| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — Dock icon and a window |
+| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnect-Both-Apps.dmg) | Both, in one image |
 
 Take whichever you want — either app works on its own, and the two are built to
 run side by side over one configuration.
@@ -33,7 +33,7 @@ download has a matching `.sha256.txt` in the release you can check it against:
 shasum -a 256 SMBConnect.dmg
 ```
 
-0.7.2 is newer than the long-standing
+0.7.3 is newer than the long-standing
 [0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5) and has had
 less time in daily use, so 0.5.5 remains available if you would rather stay on
 it.
@@ -43,6 +43,11 @@ it.
 Newest first. SMB Connect is designed for environments where users regularly connect to
 multiple storage targets, and each release works towards that.
 
+- *NEW* v0.7.3 beta (build 26) adds **Switch to Preferred**. When a share is mounted on a fallback path and the faster one comes back, the button on that share now says what it will do — disconnect the share and mount it once on the preferred network — instead of a generic *Fix Connection*. It only says **Switch to Preferred** when the preferred path really is the one it will use; if your fastest network is still down and only a middle fallback is available, the wording stays generic, because the share is not going where the other label would suggest. It asks before it does anything: quit Final Cut Pro and anything else with files open on that share first.
+- *NEW* v0.7.3 beta records what it does, so a problem can be looked into after the fact rather than reproduced. It logs every connection state change, the network path chosen for each share, and every mount and unmount together with what asked for it — including the mounts and unmounts macOS performs on its own, which is what tells you whether shares dropped because the app disconnected them or because the network did. **Export Diagnostics** in Settings writes that log, your configured shares, the live network interfaces and the current mount table into one text file, ready to send. No passwords and no account names are in it.
+- *FIXED* v0.7.3 beta stops a failed reconnect from leaving a share unmounted. Automatic reconnection, and the repair button, both used to disconnect the share first and only then look for a saved password and a reachable server — so if either was missing you were left with no mount at all, having had a working one moments earlier. This was most likely exactly when it hurt: while a Mac changes network, every configured path is briefly unreachable, so every share could be taken down at once. Both now check they can reconnect before disconnecting anything, and say so when they decline.
+- *FIXED* v0.7.3 beta makes the app far quicker to notice a server that is not answering. Checking whether a share's server was reachable waited a second and a quarter before giving up, even when the server had already refused outright — which it does immediately when it is switched off. That check now returns as soon as the answer is known. It matters most while a Mac is changing network, when the old behaviour could leave the app busy for fifteen seconds at a time.
+- *FIXED* v0.7.3 beta fixes a crash and a freeze around saved passwords. Reading a password from the Keychain was done on the part of the app that draws the window, so the Settings window locked up for as long as the standard macOS *Always Allow* prompt was on screen — the one you see the first time the second app reads a share the first one saved. Separately, status checks could overlap and run into each other, which could crash the app outright; they no longer can.
 - *FIXED* v0.7.2 beta (build 22) makes the status colours say one thing at a time. A share connected on its **fallback** path showed an orange check mark — a warning colour on the icon that means "connected", repeating what the orange **Fallback** label beside it already said. A green check now always means connected, and only the wording turns orange. An **offline** share is grey rather than red and no longer counts as needing attention: a server that is switched off, or being away from that network, is not something you can fix.
 - *FIXED* v0.7.1 beta (build 21) makes **Connect All** work in SMB Connect Desktop. In 0.7.0 the `Shares` menu decided once at launch — before the app had finished looking at your network — whether anything was connectable, and never checked again, so **Connect All** and **Disconnect All** were greyed out for as long as the app was open. Connect All is also a properly labelled toolbar button now rather than an unlabelled icon.
 - *NEW* v0.7.0 beta (build 20) adds **SMB Connect Desktop**, a second app with a Dock icon and a proper window — shares down the left, and the selected one filling the right with the things the menu bar popup has to shorten: the full explanation when another user holds a volume, every configured network path with the one in use marked, and the complete repair guidance. Closing its window does not quit it. Both apps share one configuration and are built to run side by side.
@@ -77,7 +82,10 @@ Quick Start and an Advanced section.
 - Shows connection state in the menu bar popover with per-share status cards, or in SMB Connect Desktop's window with a share list beside a full detail pane
 - Warns when the Mac is on Wi-Fi with no wired path, since shares mount over Wi-Fi perfectly well and simply run far slower than the wired path they are configured for
 - Connects all ready shares in one click (`Connect All`, `⌘K`) or automatically on app start
-- Auto-reconnects dropped shares when the server is still reachable, with stale mount cleanup and a 60-second cooldown
+- Auto-reconnects dropped shares when the server is still reachable, with stale mount cleanup and a 60-second cooldown; a share is never disconnected until a saved password and a reachable path are both in hand, so a reconnect that cannot succeed leaves the working mount alone
+- Moves a share back onto its preferred network with `Switch to Preferred`, which disconnects it and mounts it once — offered only when the preferred path really is the one that will be used, and always after confirmation
+- Records what it does to the macOS system log: connection state changes, the network path chosen for each share, and every mount and unmount along with what asked for it — including the ones macOS performs itself, which is what distinguishes the app disconnecting a share from the network dropping it
+- Exports a diagnostics report from Settings — the recent log with the configured shares, live network interfaces and current mount table in one file, containing no passwords and no account names
 - Detects duplicate mounts such as `Video` and `Video-1`
 - Reads mount ownership from the system mount table, so a share held by another logged-in user is named rather than mistaken for a stale folder or for one of your own mounts
 - Recognises when one server has been mounted through two different addresses — its IP and its Bonjour `.local` name — which macOS treats as two separate volumes
