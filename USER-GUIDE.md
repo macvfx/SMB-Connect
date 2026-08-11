@@ -11,22 +11,22 @@ Typical uses:
 - preload share definitions from JSON or MDM
 - let each user store their own password locally in Keychain
 
-## Two Apps To Choose From
+## One Mount Authority, Two Interfaces
 
-SMB Connect comes as two applications. They do the same job and share everything; pick whichever suits you, or use both.
+SMB Connect comes with two interfaces that share the same configuration, but the original **SMB Connect** app is the only mount and credential authority.
 
 | App | Where it lives | Best when |
 |---|---|---|
-| **SMB Connect** | Menu bar only, no Dock icon | You want it out of the way and only glance at it |
-| **SMB Connect Desktop** | Dock icon and a window | You want a window you can leave open, resize and read properly |
+| **SMB Connect** | Menu bar by default; optional Dock icon and window | Normal use, saved credentials, automatic mounts, and requests from other apps |
+| **SMB Connect Desktop** | Dock icon and a window | Compatibility interface that sends Connect requests to SMB Connect |
 
-Both show the same shares, use the same settings, and use the same saved passwords. Connect a share in one and the other shows it as connected. You can install one or both, and run both at once.
+Both show the same shares and live mount state. When Desktop asks to connect, the original app chooses the network path, reads its own Keychain item, and performs the mount. Desktop does not read or resave the SMB password.
 
 The **Desktop** app has more room, so it shows the things the menu bar popup has to shorten: the full explanation when another user is holding a volume, every network path configured for a share with the one in use marked, and the complete repair guidance. Its actions are also in menus with keyboard shortcuts — `⌘R` refresh, `⌘K` connect all, `⇧⌘K` disconnect all.
 
-Closing the Desktop app's window does not quit it. It keeps watching your shares and reconnecting them; click its Dock icon to bring the window back. Use **Quit** in its menu to stop it completely.
+Closing the Desktop app's window does not quit it; click its Dock icon to bring the window back. Automatic mount work remains the original SMB Connect app's responsibility.
 
-One note on passwords: the first time the second app connects a share, macOS asks permission to use the saved password. Choose **Always Allow**. This happens once per share.
+For a full-size interface without a second app, turn on **Settings → General → Show Dock icon and desktop window** in SMB Connect. This is especially useful on laptops with limited menu bar space.
 
 ## How To Use The App
 
@@ -423,6 +423,7 @@ This contains:
 - `Launch at login`
 - `Connect all shares on start`
 - `Auto-reconnect dropped shares`
+- `Show Dock icon and desktop window`
 - `Setup Folder`
 - `Refresh Status`
 
@@ -433,6 +434,8 @@ This contains:
 `Auto-reconnect dropped shares` monitors connected shares and automatically reconnects any that drop while the server is still reachable. When a share transitions from mounted to unmounted and SMB Connect can still reach the server on TCP port 445, the app disconnects any stale mount points and reconnects cleanly via the best available network path. A 60-second cooldown per share prevents rapid-fire reconnect attempts if the server is flapping. This is enabled by default.
 
 Pairing `Launch at login` with `Connect all shares on start` and `Auto-reconnect dropped shares` gives a fully automatic mount experience: the app opens at login, connects all ready shares without any user interaction, and keeps them connected if a transient network drop occurs.
+
+`Show Dock icon and desktop window` changes the original SMB Connect from its compact menu-bar presentation to a regular macOS app with a Dock icon, application menus, and the resizable shares window. Turning it off returns to menu-bar-only presentation.
 
 `Setup Folder` is where the app looks for setup JSON files on startup and refresh:
 
@@ -445,7 +448,7 @@ This section is for:
 - `Import JSON…`
 - `Export JSON…`
 - `Open Setup Folder`
-- `Export Diagnostics…`
+- `Export Logs and Diagnostics…`
 
 Use `Import JSON…` to load a setup file manually from anywhere.
 
@@ -457,11 +460,9 @@ If you need to create a valid setup JSON file and a matching MDM `.mobileconfig`
 
 - [generate_smbconnect_config.sh](generate_smbconnect_config.sh)
 
-It accepts a comma-separated `.csv` or `.txt` file using:
-
-```text
-alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed
-```
+It accepts a comma-separated `.csv` or `.txt` file using
+`alias, protocol, shareName, mountName, defaultUsername, note, preferredIP,
+preferredSpeed, fallbackIP, fallbackSpeed`
 
 and generates both output formats for SMB Connect.
 
@@ -478,7 +479,8 @@ automatic reconnection. It also records the mounts and unmounts **macOS**
 performs on its own, which is what tells you whether shares dropped because the
 app disconnected them or because the network did.
 
-`Export Diagnostics…` writes that log, together with your configured shares and
+`Export Logs and Diagnostics…`, available from the macOS **Help** menu and
+Settings, writes that log together with your configured shares and
 their current states, the live network interfaces and the current mount table,
 into a single text file and reveals it in the Finder. Send that file with your
 report.
@@ -491,7 +493,10 @@ macOS discards older entries on its own schedule.
 If you would rather read the log directly:
 
 ```bash
-log show --predicate 'subsystem == "com.matx.SMBConnect"' --last 1h --style compact
+log show \
+  --predicate 'subsystem == "com.matx.SMBConnect"' \
+  --last 1h \
+  --style compact
 ```
 
 One command covers both apps — the menu bar app appears as `SMBConnect` and the
@@ -561,6 +566,20 @@ Important:
 - passwords are not stored in JSON
 - passwords are not stored in the MDM profile
 
+SMB Connect Desktop deliberately does not display or load these password fields. Use the original SMB Connect Settings to create, change, or delete credentials.
+
+### External Mount Requests
+
+`Allow apps to request this volume` permits CopyTrust, SMB Connect Desktop, or another local app to ask the original SMB Connect app to mount this share by its configured **Mount Name**. It is off by default. It remains unavailable when two shares have the same Mount Name because SMB Connect will not guess which one the caller meant.
+
+An allowed request contains no connection details or credentials:
+
+```text
+smbconnect://v1/mount?volume=Example_NAS1&request=<uuid>
+```
+
+SMB Connect selects the fastest reachable preferred or fallback endpoint and reads the password from its own Keychain item. The caller watches for `/Volumes/Example_NAS1`, then checks the relative folder it needs. For example, CopyTrust may require `/Volumes/Example_NAS1/Archives`; only `Example_NAS1` is sent to SMB Connect, while checking `Archives` remains CopyTrust's responsibility.
+
 ### Current Status
 
 This section shows the live status for the selected share and any repair guidance.
@@ -572,13 +591,6 @@ If the share needs repair or attention, this section explains why.
 There are several ways to produce share definitions, depending on what you start
 from. They all end in one of two artifacts: a **setup JSON** (imported per user
 in the app) or an **MDM `.mobileconfig` profile** (pushed by IT).
-
-| Starting point | Tool | Produces |
-| --- | --- | --- |
-| Typing shares by hand | The app's `Settings…` window | Local config (export to JSON) |
-| Shares already mounted on a Mac | **Mount Import Assistant** app, or [`mount_to_smbconnect_config.sh`](mount_to_smbconnect_config.sh) | Setup JSON |
-| A spreadsheet / server list | [`generate_smbconnect_config.sh`](generate_smbconnect_config.sh) | Setup JSON **and** `.mobileconfig` |
-| An existing setup JSON | [`json_to_mobileconfig.sh`](json_to_mobileconfig.sh) | `.mobileconfig` |
 
 - **In the app** — add and edit shares in `Settings…`, then `Export` to a JSON
   file for backup or to seed another Mac. See `Import / Export` above.

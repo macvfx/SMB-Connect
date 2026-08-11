@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.7.3` current · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.7.4` current beta · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -8,20 +8,20 @@ From v0.7.0 it comes as **two apps**. Download either on its own, or both togeth
 
 | | |
 |---|---|
-| **SMB Connect** | Menu bar only, no Dock icon |
-| **SMB Connect Desktop** | Dock icon and a resizable window |
+| **SMB Connect** | Mount authority; menu bar by default, with optional Dock icon and resizable window |
+| **SMB Connect Desktop** | Compatibility client with a Dock icon and resizable window |
 
-Same shares, same settings, same saved passwords. Install either, or both — they are built to run at the same time.
+Same shares and settings. When both are installed, Desktop asks the original SMB Connect app to mount shares, so the original app remains the only Keychain and mounting authority.
 
 ## Download
 
-- **[SMB Connect 0.7.3 (build 26)](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.3%2B26)** — current release, three downloads:
+- **[SMB Connect 0.7.4 (build 27) beta](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.4%2B27)** — current prerelease, three downloads:
 
 | Download | Contains |
 |---|---|
-| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnect.dmg) | **SMB Connect** — menu bar app, no Dock icon |
-| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — Dock icon and a window |
-| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.3%2B26/SMBConnect-Both-Apps.dmg) | Both, in one image |
+| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnect.dmg) | **SMB Connect** — mount authority; menu bar by default, optional Dock icon/window |
+| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — compatibility client with Dock icon and window |
+| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnect-Both-Apps.dmg) | Both, in one image |
 
 Take whichever you want — either app works on its own, and the two are built to
 run side by side over one configuration.
@@ -33,7 +33,7 @@ download has a matching `.sha256.txt` in the release you can check it against:
 shasum -a 256 SMBConnect.dmg
 ```
 
-0.7.3 is newer than the long-standing
+0.7.4 is newer than the long-standing
 [0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5) and has had
 less time in daily use, so 0.5.5 remains available if you would rather stay on
 it.
@@ -43,6 +43,9 @@ it.
 Newest first. SMB Connect is designed for environments where users regularly connect to
 multiple storage targets, and each release works towards that.
 
+- *NEW* v0.7.4 beta (build 27) lets another app request a required volume and folder through a `smbconnect://mount` URL using the share's unique **Mount Name**. The request carries no server address, username, or password: SMB Connect resolves the configured share and chooses the best reachable preferred or fallback network path. Each share must explicitly allow requests from other apps.
+- *NEW* v0.7.4 beta makes the original SMB Connect app the mounting and Keychain authority. SMB Connect Desktop delegates mount requests to it when available, avoiding a second app asking users to grant or re-enter the same saved passwords. The original app can now optionally show a Dock icon and full window for laptop users who prefer not to spend menu bar space.
+- *NEW* v0.7.4 beta renames diagnostics to **Export Logs and Diagnostics** and makes the export available from the Help menu as well as Settings.
 - *NEW* v0.7.3 beta (build 26) adds **Switch to Preferred**. When a share is mounted on a fallback path and the faster one comes back, the button on that share now says what it will do — disconnect the share and mount it once on the preferred network — instead of a generic *Fix Connection*. It only says **Switch to Preferred** when the preferred path really is the one it will use; if your fastest network is still down and only a middle fallback is available, the wording stays generic, because the share is not going where the other label would suggest. It asks before it does anything: quit Final Cut Pro and anything else with files open on that share first.
 - *NEW* v0.7.3 beta records what it does, so a problem can be looked into after the fact rather than reproduced. It logs every connection state change, the network path chosen for each share, and every mount and unmount together with what asked for it — including the mounts and unmounts macOS performs on its own, which is what tells you whether shares dropped because the app disconnected them or because the network did. **Export Diagnostics** in Settings writes that log, your configured shares, the live network interfaces and the current mount table into one text file, ready to send. No passwords and no account names are in it.
 - *FIXED* v0.7.3 beta stops a failed reconnect from leaving a share unmounted. Automatic reconnection, and the repair button, both used to disconnect the share first and only then look for a saved password and a reachable server — so if either was missing you were left with no mount at all, having had a working one moments earlier. This was most likely exactly when it hurt: while a Mac changes network, every configured path is briefly unreachable, so every share could be taken down at once. Both now check they can reconnect before disconnecting anything, and say so when they decline.
