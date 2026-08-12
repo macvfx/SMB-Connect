@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.7.4` current beta · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.7.5` current beta · `v0.5.5` previous stable · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -15,13 +15,13 @@ Same shares and settings. When both are installed, Desktop asks the original SMB
 
 ## Download
 
-- **[SMB Connect 0.7.4 (build 27) beta](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.4%2B27)** — current prerelease, three downloads:
+- **[SMB Connect 0.7.5 (build 28) beta](https://github.com/macvfx/SMB-Connect/releases/tag/0.7.5%2B28)** — current prerelease, three downloads:
 
 | Download | Contains |
 |---|---|
-| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnect.dmg) | **SMB Connect** — mount authority; menu bar by default, optional Dock icon/window |
-| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — compatibility client with Dock icon and window |
-| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.4%2B27/SMBConnect-Both-Apps.dmg) | Both, in one image |
+| [`SMBConnect.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.5%2B28/SMBConnect.dmg) | **SMB Connect** — mount authority; menu bar by default, optional Dock icon/window |
+| [`SMBConnectDesktop.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.5%2B28/SMBConnectDesktop.dmg) | **SMB Connect Desktop** — compatibility client with Dock icon and window |
+| [`SMBConnect-Both-Apps.dmg`](https://github.com/macvfx/SMB-Connect/releases/download/0.7.5%2B28/SMBConnect-Both-Apps.dmg) | Both, in one image |
 
 Take whichever you want — either app works on its own, and the two are built to
 run side by side over one configuration.
@@ -33,7 +33,7 @@ download has a matching `.sha256.txt` in the release you can check it against:
 shasum -a 256 SMBConnect.dmg
 ```
 
-0.7.4 is newer than the long-standing
+0.7.5 is newer than the long-standing
 [0.5.5](https://github.com/macvfx/SMB-Connect/releases/tag/0.5.5) and has had
 less time in daily use, so 0.5.5 remains available if you would rather stay on
 it.
@@ -43,7 +43,9 @@ it.
 Newest first. SMB Connect is designed for environments where users regularly connect to
 multiple storage targets, and each release works towards that.
 
-- *NEW* v0.7.4 beta (build 27) lets another app request a required volume and folder through a `smbconnect://mount` URL using the share's unique **Mount Name**. The request carries no server address, username, or password: SMB Connect resolves the configured share and chooses the best reachable preferred or fallback network path. Each share must explicitly allow requests from other apps.
+- *NEW* v0.7.5 beta (build 28) adds fleet tooling for CopyTrust volume requests. The CSV generator and JSON-to-profile converter preserve each share's default-off approval, and the validator refuses a profile when a required Mount Name is absent, duplicated, or not explicitly enabled.
+- *NEW* v0.7.5 beta updates Mount Import Assistant to export the approval in its JSON, CSV, and review report, and includes a tested Swift reference client showing how CopyTrust requests a volume and checks its own folder without receiving credentials or endpoint details.
+- *NEW* v0.7.4 beta (build 27) lets another app request a required volume through a versioned `smbconnect://v1/mount` URL using the share's unique **Mount Name**. The request carries no server address, username, or password: SMB Connect resolves the configured share and chooses the best reachable preferred or fallback network path. Each share must explicitly allow requests from other apps.
 - *NEW* v0.7.4 beta makes the original SMB Connect app the mounting and Keychain authority. SMB Connect Desktop delegates mount requests to it when available, avoiding a second app asking users to grant or re-enter the same saved passwords. The original app can now optionally show a Dock icon and full window for laptop users who prefer not to spend menu bar space.
 - *NEW* v0.7.4 beta renames diagnostics to **Export Logs and Diagnostics** and makes the export available from the Help menu as well as Settings.
 - *NEW* v0.7.3 beta (build 26) adds **Switch to Preferred**. When a share is mounted on a fallback path and the faster one comes back, the button on that share now says what it will do — disconnect the share and mount it once on the preferred network — instead of a generic *Fix Connection*. It only says **Switch to Preferred** when the preferred path really is the one it will use; if your fastest network is still down and only a middle fallback is available, the wording stays generic, because the share is not going where the other label would suggest. It asks before it does anything: quit Final Cut Pro and anything else with files open on that share first.
@@ -72,6 +74,8 @@ multiple storage targets, and each release works towards that.
 
 - **[User Guide](USER-GUIDE.md)** — setup, getting started, every feature, and troubleshooting
 - **[User Guide (PDF)](USER-GUIDE.pdf)** — the same guide as a printable download
+- **[CopyTrust two-volume MDM workflow](COPYTRUST-TWO-VOLUME-MDM-WORKFLOW.md)** — generate, validate, deploy, and test required destinations
+- **[CopyTrust integration contract](COPYTRUST-SMB-CONNECT-INTEGRATION.md)** — separation of responsibilities and tested Swift client
 
 Help is built in as well: press `?` in the menu bar popup, use **Help** in SMB
 Connect Desktop's menu bar, or open **Settings → Help → Getting Started**, for a
@@ -124,14 +128,19 @@ The generator script is here:
 - [generate_smbconnect_config.sh](generate_smbconnect_config.sh)
 - [mount_to_smbconnect_config.sh](mount_to_smbconnect_config.sh)
 - [json_to_mobileconfig.sh](json_to_mobileconfig.sh) — convert an existing setup JSON into an MDM `.mobileconfig`
+- [validate_copytrust_mdm_profile.sh](validate_copytrust_mdm_profile.sh) — require exact, unique, opted-in CopyTrust Mount Names
+- [test_copytrust_mdm_tooling.sh](test_copytrust_mdm_tooling.sh) — regression-test the public generators and validator
 
 Generator usage is documented here:
 
 - [README-config-generator.md](README-config-generator.md)
 - [README-mount-import.md](README-mount-import.md)
 - [README-json-to-mobileconfig.md](README-json-to-mobileconfig.md)
+- [CopyTrust MDM deployment plan](COPYTRUST-MDM-DEPLOYMENT-PLAN.md)
 
 *EXTRA:* a small macOS SwiftUI companion app named **Mount Import Assistant** for the same mounted-share import workflow. Use the app or the portable shell scripts.
+
+The tested CopyTrust reference client is in [examples/CopyTrustSMBConnectClient](examples/CopyTrustSMBConnectClient).
 
 For endpoint planning, use the FASTEST local path first: prefer the fastest reachable local network such as `10GbE`, fall back to slower local paths such as `1GbE`, and use VPN/WireGuard/Tailscale addresses as remote reachability or fallback paths unless a device is intentionally VPN-only.
 

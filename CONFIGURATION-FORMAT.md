@@ -28,6 +28,7 @@ SMB Connect can:
 | `shareName` | string | Yes | The SMB share path component, e.g. `Exports` in `smb://server/Exports`. |
 | `mountName` | string | No | The volume name expected under `/Volumes` after mounting. Defaults to `shareName` if absent. |
 | `defaultUsername` | string | No | Suggested username pre-filled in the Credentials section. The user must still save a password in Keychain. |
+| `allowExternalMountRequests` | boolean | No | Permit a local app such as CopyTrust to request this configured volume by Mount Name. Defaults to `false`. |
 | `endpoints` | array | Yes | One or more IP-based network paths to this share. |
 | `note` | string | No | Optional free-text note shown in the Settings detail pane. |
 | `source` | string | No | Origin tag. Valid values: `"user"`, `"imported"`, `"mdmManaged"`. **This field is always overridden on import** — the app sets it to `"imported"` for JSON imports regardless of what the file contains. It is safe to include or omit it. |
@@ -59,7 +60,7 @@ Lower default priority = preferred first. An explicit `priority` value in the JS
 
 ### JSON Example
 
-See examples folder.
+See [Config/SMBConnectSetup-EXAMPLE.json](examples/SMBConnectSetup-EXAMPLE.json) and [Config/SMBConnectSetup-DEMO-SIX-SERVERS.json](examples/SMBConnectSetup-DEMO-SIX-SERVERS.json).
 
 Minimal valid structure:
 
@@ -72,6 +73,7 @@ Minimal valid structure:
       "connectionProtocol": "smb",
       "shareName": "Exports",
       "mountName": "Exports",
+      "allowExternalMountRequests": true,
       "defaultUsername": "user",
       "endpoints": [
         {
@@ -101,10 +103,11 @@ If you want to build a valid SMB Connect setup JSON file and matching `.mobileco
 
 - [generate_smbconnect_config.sh](generate_smbconnect_config.sh)
 
-The generator accepts `.csv` and `.txt` inputs using this 10-column format:
+The generator accepts its original 10-column format (external requests default
+to `false`) or this 11-column format:
 
 ```text
-alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed
+alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed,allowExternalMountRequests
 ```
 
 If `fallbackIP` and `fallbackSpeed` are both blank, the generated share will contain a single preferred endpoint.
@@ -116,7 +119,7 @@ Example input files:
 
 Full generator usage details are documented in:
 
-- [README-config-generator.md](README-config-generator.md)
+- [scripts/README-config-generator.md](README-config-generator.md)
 
 ### Converting An Existing JSON To An MDM Profile
 
@@ -127,9 +130,9 @@ produced by another script) and only need the matching `.mobileconfig`, use:
 
 ```bash
 ./json_to_mobileconfig.sh \
-  -i ./SMBConnectSetup-EXAMPLE.json \
-  -o ./SMBConnectSetup-EXAMPLE.mobileconfig \
-  --organization "Your Org"
+  -i ./examples/SMBConnectSetup-EXAMPLE.json \
+  -o ./generated/SMBConnectSetup-EXAMPLE.mobileconfig \
+  --organization "Example Organization"
 ```
 
 Key options:
@@ -144,13 +147,15 @@ It applies the JSON → MDM key mapping described in
 [Key Name Reference: JSON vs MDM](#key-name-reference-json-vs-mdm) (notably
 `connectionProtocol` → `protocol`, and dropping `source`). Full usage:
 
-- [README-json-to-mobileconfig.md](README-json-to-mobileconfig.md)
+- [scripts/README-json-to-mobileconfig.md](README-json-to-mobileconfig.md)
 
 ---
 
 ## MDM Profile Format
 
 MDM delivers preferences as a macOS configuration profile. The app reads managed values from `UserDefaults` forced preferences via `com.matx.SMBConnect`.
+
+See [Config/com.matx.SMBConnect.mobileconfig](examples/com.matx.SMBConnect.mobileconfig).
 
 ### Top-Level MDM Keys
 
@@ -169,6 +174,7 @@ MDM delivers preferences as a macOS configuration profile. The app reads managed
 | `mountName` | string | No | Volume name under `/Volumes`. Defaults to `shareName`. |
 | `defaultUsername` | string | No | Pre-filled username suggestion. |
 | `note` | string | No | Free-text note. |
+| `allowExternalMountRequests` | boolean | No | Permit a local app such as CopyTrust to request this configured volume by Mount Name. Defaults to `false`. This does not identify or authenticate CopyTrust specifically. |
 | `endpoints` | array of dicts | Yes | One or more endpoint dicts (see below). |
 
 ### MDM Endpoint Fields
@@ -191,6 +197,7 @@ MDM delivers preferences as a macOS configuration profile. The app reads managed
     <key>protocol</key>    <string>smb</string>
     <key>shareName</key>   <string>Exports</string>
     <key>mountName</key>   <string>Exports</string>
+    <key>allowExternalMountRequests</key> <true/>
     <key>defaultUsername</key> <string>user</string>
     <key>note</key>        <string>Preferred 10GbE, fallback 1GbE.</string>
     <key>endpoints</key>

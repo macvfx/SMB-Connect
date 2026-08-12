@@ -30,6 +30,8 @@
 					<string>Outputs</string>
 					<key>mountName</key>
 					<string>Outputs</string>
+					<key>allowExternalMountRequests</key>
+					<true/>
 					<key>defaultUsername</key>
 					<string>editor</string>
 					<key>note</key>
@@ -71,6 +73,8 @@
 					<string>Archive</string>
 					<key>mountName</key>
 					<string>Archive</string>
+					<key>allowExternalMountRequests</key>
+					<false/>
 					<key>defaultUsername</key>
 					<string>archiveuser</string>
 					<key>note</key>

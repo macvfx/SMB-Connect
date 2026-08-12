@@ -462,7 +462,8 @@ If you need to create a valid setup JSON file and a matching MDM `.mobileconfig`
 
 It accepts a comma-separated `.csv` or `.txt` file using
 `alias, protocol, shareName, mountName, defaultUsername, note, preferredIP,
-preferredSpeed, fallbackIP, fallbackSpeed`
+preferredSpeed, fallbackIP, fallbackSpeed, allowExternalMountRequests`. The
+last field is optional for older input and safely defaults to `false`.
 
 and generates both output formats for SMB Connect.
 
@@ -572,6 +573,12 @@ SMB Connect Desktop deliberately does not display or load these password fields.
 
 `Allow apps to request this volume` permits CopyTrust, SMB Connect Desktop, or another local app to ask the original SMB Connect app to mount this share by its configured **Mount Name**. It is off by default. It remains unavailable when two shares have the same Mount Name because SMB Connect will not guess which one the caller meant.
 
+IT can force the same per-share setting through the `com.matx.SMBConnect` MDM
+payload by placing `allowExternalMountRequests = true` in an approved
+`ManagedShares` dictionary. Managed shares are locked in the UI. For a fleet
+rollout, generate and validate the exact profile as described in
+[CopyTrust and SMB Connect MDM deployment plan](COPYTRUST-MDM-DEPLOYMENT-PLAN.md).
+
 An allowed request contains no connection details or credentials:
 
 ```text
@@ -626,6 +633,7 @@ JSON can define:
 - one or more network paths
 - path priority
 - notes
+- whether approved local apps may request the volume by Mount Name
 
 Passwords are intentionally omitted.
 
@@ -647,6 +655,7 @@ This is useful when IT wants to push:
 - preferred and fallback IPs
 - network speed labels
 - default usernames
+- per-share CopyTrust/external-request approval
 
 The user can still enter and store their own password locally in Keychain.
 
@@ -657,7 +666,7 @@ You can build the profile directly from a setup JSON with
 ./scripts/json_to_mobileconfig.sh \
   -i ./Config/SMBConnectSetup-EXAMPLE.json \
   -o ./Config/generated/SMBConnectSetup-EXAMPLE.mobileconfig \
-  --organization "Your Org"
+  --organization "Example Organization"
 ```
 
 Two options shape how the profile behaves on the user's Mac:
@@ -671,6 +680,16 @@ Two options shape how the profile behaves on the user's Mac:
   into the profile and is identical (and locked) for all users on the device.
 
 Passwords are never written to the profile.
+
+For CopyTrust, validate the finished profile before MDM upload. This command
+requires both fictional example volumes to exist exactly once and to have the
+external-request policy explicitly enabled:
+
+```bash
+./scripts/validate_copytrust_mdm_profile.sh \
+  ./Config/generated/Example-Ingest.mobileconfig \
+  Archive Projects
+```
 
 ### Entering Credentials For A Managed Share
 
@@ -701,12 +720,16 @@ See:
 2. Preload alias, share name, mount name, and preferred/fallback IPs.
 3. Optionally preload a default username, or use `--blank-username` so each user
    supplies their own.
-4. To deploy by MDM, convert the JSON with
+4. For every CopyTrust destination, explicitly enable
+   `allowExternalMountRequests`; leave it false for other shares.
+5. To deploy by MDM, convert the JSON with
    [`json_to_mobileconfig.sh`](json_to_mobileconfig.sh) (or generate
    the profile directly). Keep `--allow-user-defined true` unless you want to
    lock users to only the managed shares.
-5. Let the user open the app and save their password locally in Keychain.
-6. Have the user connect from the menu bar app.
+6. Validate every required CopyTrust Mount Name with
+   `validate_copytrust_mdm_profile.sh` before uploading the profile.
+7. Let the user open the app and save their password locally in Keychain.
+8. Have the user connect from the menu bar app.
 
 ## Recommended User Workflow
 

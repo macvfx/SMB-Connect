@@ -6,6 +6,7 @@
       "connectionProtocol" : "smb",
       "shareName" : "Outputs",
       "mountName" : "Outputs",
+      "allowExternalMountRequests" : true,
       "defaultUsername" : "editor",
       "endpoints" : [
         {
@@ -31,6 +32,7 @@
       "connectionProtocol" : "smb",
       "shareName" : "Archive",
       "mountName" : "Archive",
+      "allowExternalMountRequests" : false,
       "defaultUsername" : "archiveuser",
       "endpoints" : [
         {

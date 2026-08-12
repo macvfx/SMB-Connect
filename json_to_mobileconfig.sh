@@ -25,6 +25,8 @@ Description:
 
 What it maps:
   - shares[].connectionProtocol  -> protocol   (also accepts "protocol" in input)
+  - shares[].allowExternalMountRequests -> allowExternalMountRequests
+    (must be a boolean; absent defaults to false)
   - shares[].source              -> dropped    (reader forces source = mdmManaged)
   - top-level configDate/shares wrapper -> flat ManagedShares array
   - every other share/endpoint field is copied through unchanged
@@ -42,7 +44,7 @@ Examples:
   ./scripts/json_to_mobileconfig.sh \
     -i ./Config/SMBConnectSetup-EXAMPLE.json \
     -o ./Config/generated/SMBConnectSetup-EXAMPLE.mobileconfig \
-    --organization "Matx"
+    --organization "Example Organization"
 
   ./scripts/json_to_mobileconfig.sh \
     -i ./Config/SMBConnectSetup-EXAMPLE.json \
@@ -218,8 +220,13 @@ for index, share in enumerate(shares):
         "mountName": share.get("mountName") or share_name,
         "defaultUsername": "" if blank_username else (share.get("defaultUsername") or ""),
         "note": share.get("note") or "",
+        "allowExternalMountRequests": False,
         "endpoints": endpoints,
     }
+    external_requests = share.get("allowExternalMountRequests", False)
+    if not isinstance(external_requests, bool):
+        die("Share %d ('%s') field 'allowExternalMountRequests' must be true or false." % (index + 1, alias))
+    managed["allowExternalMountRequests"] = external_requests
     managed_shares.append(managed)
 
 settings_payload = {

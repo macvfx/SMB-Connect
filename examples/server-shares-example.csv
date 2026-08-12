@@ -1,5 +1,5 @@
-server alias,protocol,share name,mount name,user name,note,preferred ip,speed preferred,fallback ip,speed fallback
-archives,smb,Archives,Archives,archivist,Primary archive share for editors,192.0.2.1,10g,198.51.100.1,1g
-outputs,smb,exports,exports,nle,Daily exports volume,192.0.2.2,10gbe,198.51.100.2,1gbe
-vault,smb,Vault,Vault,post.team,"Quoted notes work, too",192.0.2.3,25g,198.51.100.3,1g
-camera,smb,Archives,Archives,media.ops,Single endpoint example,192.0.2.4,10g,,
+server alias,protocol,share name,mount name,user name,note,preferred ip,speed preferred,fallback ip,speed fallback,allow external mount requests
+archives,smb,Archives,Example_Archive,archivist,Primary archive share for editors,192.0.2.1,10g,198.51.100.1,1g,true
+outputs,smb,exports,Example_Exports,nle,Daily exports volume,192.0.2.2,10gbe,198.51.100.2,1gbe,false
+vault,smb,Vault,Example_Vault,post.team,"Quoted notes work, too",192.0.2.3,25g,198.51.100.3,1g,false
+camera,smb,Camera,Example_Camera,media.ops,Single endpoint example,192.0.2.4,10g,,,true

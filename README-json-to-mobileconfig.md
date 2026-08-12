@@ -65,6 +65,7 @@ which is exactly what the app's managed-preferences reader looks for:
 
 - `ManagedShares` — one dict per share
 - `AllowUserDefinedShares` — whether users can still add their own shares
+- `allowExternalMountRequests` — copied per share; absent defaults to `false`
 
 Field mapping:
 
@@ -72,6 +73,7 @@ Field mapping:
 | --- | --- |
 | `shares[].connectionProtocol` | `protocol` (input may also use `protocol`) |
 | `shares[].source` | dropped (the reader forces `source = mdmManaged`) |
+| `shares[].allowExternalMountRequests` | copied as a boolean; absent defaults to `false` |
 | top-level `configDate` / `shares` wrapper | dropped — flat `ManagedShares` array |
 | `alias`, `shareName`, `mountName`, `defaultUsername`, `note` | copied unchanged (`defaultUsername` is blanked when `--blank-username` is set) |
 | `endpoints[]` (`serverIP`, `networkType`, `priority`, `subnetPrefix`, `label`) | copied unchanged; optional endpoint fields are included only when present |
@@ -97,3 +99,4 @@ The script stops with an error if:
 - a share is missing `alias` or `shareName`
 - a share has no `endpoints`
 - an endpoint is missing `serverIP` or `networkType`
+- `allowExternalMountRequests` is present but is not a JSON boolean

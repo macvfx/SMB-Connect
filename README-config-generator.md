@@ -18,16 +18,17 @@ Example inputs are here:
 
 ## Input format
 
-The script requires this 10-column row format:
+The script accepts the original 10-column row format, which defaults external
+mount requests to `false`, or this 11-column format:
 
 ```text
-alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed
+alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed,allowExternalMountRequests
 ```
 
 Example:
 
 ```text
-archives,smb,Archives,Archives,Archives.archivist,Primary archive share for editors,192.0.2.1,10g,198.51.100.1,1g
+archives,smb,Archives,Example_Archive,archive-user,Example archive share,192.0.2.1,10g,198.51.100.1,1g,true
 ```
 
 ## Accepted values
@@ -35,6 +36,8 @@ archives,smb,Archives,Archives,Archives.archivist,Primary archive share for edit
 - `protocol`: only `smb`
 - `speed preferred` / `speed fallback`: `100g`, `40g`, `25g`, `10g`, `5g`, `2.5g`, `1g`, or `custom`
 - `preferred ip` / `fallback ip`: IPv4 address
+- `allowExternalMountRequests`: `true`, `false`, `yes`, `no`, `1`, or `0`; use
+  `true` only for a volume approved for CopyTrust or another local requester
 
 Blank lines and lines starting with `#` are ignored.
 
@@ -91,6 +94,7 @@ The `.mobileconfig` output uses:
 
 - `ManagedShares`
 - `AllowUserDefinedShares`
+- per-share `allowExternalMountRequests`
 - `protocol` for the managed share payload
 
 Each generated endpoint gets:
@@ -105,6 +109,7 @@ Each generated endpoint gets:
 The script stops with an error if:
 
 - a row has the wrong number of columns
+- the optional external-request value is not a recognized boolean
 - protocol is not `smb`
 - an IP address is invalid
 - a speed label is not recognized
@@ -113,5 +118,7 @@ The script stops with an error if:
 ## Notes
 
 - Passwords are not stored in either output file.
+- Existing 10-column inventories remain valid and emit
+  `allowExternalMountRequests: false`.
 - `source` is set to `imported` in the generated JSON.
 - The script creates fresh UUIDs for every generated `.mobileconfig`.

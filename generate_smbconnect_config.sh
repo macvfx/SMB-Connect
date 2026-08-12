@@ -19,8 +19,10 @@ Description:
   - a macOS .mobileconfig MDM profile
 
 Accepted input formats per non-empty line:
-  10 columns:
+  10 columns (external requests default to false):
     alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed
+  11 columns:
+    alias,protocol,shareName,mountName,defaultUsername,note,preferredIP,preferredSpeed,fallbackIP,fallbackSpeed,allowExternalMountRequests
 
 Notes:
   - Blank lines and lines starting with # are ignored.
@@ -293,8 +295,8 @@ while IFS= read -r raw_line || [[ -n "$raw_line" ]]; do
   fi
 
   field_count="${#FIELDS[@]}"
-  if [[ "$field_count" -ne 10 ]]; then
-    die "Line $line_number has $field_count fields. Expected exactly 10."
+  if [[ "$field_count" -ne 10 && "$field_count" -ne 11 ]]; then
+    die "Line $line_number has $field_count fields. Expected 10 or 11."
   fi
 
   alias="$(trim "${FIELDS[0]}")"
@@ -307,6 +309,10 @@ while IFS= read -r raw_line || [[ -n "$raw_line" ]]; do
   preferred_speed="$(trim "${FIELDS[7]}")"
   fallback_ip="$(trim "${FIELDS[8]}")"
   fallback_speed="$(trim "${FIELDS[9]}")"
+  allow_external_mount_requests="false"
+  if [[ "$field_count" -eq 11 ]]; then
+    allow_external_mount_requests="$(normalize_boolean "$(trim "${FIELDS[10]}")")"
+  fi
 
   [[ -n "$alias" ]] || die "Line $line_number is missing alias."
   [[ -n "$share_name" ]] || die "Line $line_number is missing shareName."
@@ -398,6 +404,7 @@ EOF
       "connectionProtocol": "$(json_escape "$protocol")",
       "shareName": "$(json_escape "$share_name")",
       "mountName": "$(json_escape "$mount_name")",
+      "allowExternalMountRequests": $allow_external_mount_requests,
       "defaultUsername": "$(json_escape "$default_username")",
       "endpoints": [
 $endpoints_json
@@ -419,6 +426,8 @@ EOF
 					<string>$(xml_escape "$share_name")</string>
 					<key>mountName</key>
 					<string>$(xml_escape "$mount_name")</string>
+					<key>allowExternalMountRequests</key>
+					<$allow_external_mount_requests/>
 					<key>defaultUsername</key>
 					<string>$(xml_escape "$default_username")</string>
 					<key>note</key>
