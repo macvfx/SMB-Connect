@@ -11,28 +11,42 @@ Typical uses:
 - preload share definitions from JSON or MDM
 - let each user store their own password locally in Keychain
 
-## One Mount Authority, Two Interfaces
+## One App, Two Presentations
 
-SMB Connect comes with two interfaces that share the same configuration, but the original **SMB Connect** app is the only mount and credential authority.
+Use the original **SMB Connect** app as the main interface. It owns saved
+credentials, selects the preferred or fallback network, performs mounts, runs
+automatic reconnection, and accepts approved mount requests from apps such as
+CopyTrust.
 
-| App | Where it lives | Best when |
-|---|---|---|
-| **SMB Connect** | Menu bar by default; optional Dock icon and window | Normal use, saved credentials, automatic mounts, and requests from other apps |
-| **SMB Connect Desktop** | Dock icon and a window | Compatibility interface that sends Connect requests to SMB Connect |
+The same app has two presentations:
 
-Both show the same shares and live mount state. When Desktop asks to connect, the original app chooses the network path, reads its own Keychain item, and performs the mount. Desktop does not read or resave the SMB password.
+- **Menu bar, the default** — a compact popup for status, Connect, Disconnect,
+  Refresh, Settings, Help, and updates. This is the normal interface.
+- **Optional Dock icon and full window** — the same SMB Connect app gains a Dock
+  icon, macOS application menus, and a resizable shares window. The menu-bar
+  control remains available.
 
-The **Desktop** app has more room, so it shows the things the menu bar popup has to shorten: the full explanation when another user is holding a volume, every network path configured for a share with the one in use marked, and the complete repair guidance. Its actions are also in menus with keyboard shortcuts — `⌘R` refresh, `⌘K` connect all, `⇧⌘K` disconnect all.
+To enable the full window, open **Settings → General** and turn on **Show Dock
+icon and desktop window**. Use this mode on a laptop with limited menu-bar space,
+or whenever you want a persistent window with a share list, expanded status and
+repair details, and toolbar actions. The window also provides `⌘R` for Refresh,
+`⌘K` for Connect All, and `⇧⌘K` for Disconnect All.
 
-Closing the Desktop app's window does not quit it; click its Dock icon to bring the window back. Automatic mount work remains the original SMB Connect app's responsibility.
+Changing presentation does not create another configuration or another
+credential owner. The same SMB Connect process, preferences, Keychain entries,
+mount logic, and automatic behavior continue underneath. Turning the option off
+returns the app to its menu-bar presentation.
 
-For a full-size interface without a second app, turn on **Settings → General → Show Dock icon and desktop window** in SMB Connect. This is especially useful on laptops with limited menu bar space.
+The separate **SMB Connect Desktop** compatibility app is no longer needed for
+a full-size interface or for a new deployment. Existing users can read
+[Appendix: SMB Connect Desktop Compatibility App](#appendix-smb-connect-desktop-compatibility-app)
+for how that older companion connects through SMB Connect.
 
 ## How To Use The App
 
 ### 1. Open The App
 
-Click the SMB Connect drive icon in the macOS menu bar, or open **SMB Connect Desktop** from your Applications folder or the Dock.
+Click the SMB Connect drive icon in the macOS menu bar.
 
 The popover shows:
 
@@ -46,6 +60,11 @@ The popover shows:
 `Connect All` is highlighted as the primary action. Hover any of the smaller buttons for a description of what it does.
 
 The top banner and the bottom action rows (including `Quit`) stay pinned in place. Only the `Connection Summary` and `Shares` sections scroll, so the title and buttons remain visible no matter how many shares you have configured.
+
+If you prefer a regular Mac window, open `Settings…`, select `General`, and
+turn on `Show Dock icon and desktop window`. The full window shows the same
+shares and live state with more room for network paths, explanations, and repair
+guidance. You can keep using the menu-bar popup while the window mode is enabled.
 
 ### 2. Read The Connection Summary
 
@@ -435,7 +454,11 @@ This contains:
 
 Pairing `Launch at login` with `Connect all shares on start` and `Auto-reconnect dropped shares` gives a fully automatic mount experience: the app opens at login, connects all ready shares without any user interaction, and keeps them connected if a transient network drop occurs.
 
-`Show Dock icon and desktop window` changes the original SMB Connect from its compact menu-bar presentation to a regular macOS app with a Dock icon, application menus, and the resizable shares window. Turning it off returns to menu-bar-only presentation.
+`Show Dock icon and desktop window` gives the original SMB Connect app a Dock
+icon, application menus, a toolbar, and a resizable shares window. It does not
+install or launch another app, and it does not move credentials or mount work to
+another process. The menu-bar control remains available. Turning the option off
+closes the full-window presentation and returns SMB Connect to menu-bar-only use.
 
 `Setup Folder` is where the app looks for setup JSON files on startup and refresh:
 
@@ -500,8 +523,9 @@ log show \
   --style compact
 ```
 
-One command covers both apps — the menu bar app appears as `SMBConnect` and the
-Dock app as `SMBConnectDesktop`.
+The original app appears in the log as `SMBConnect`. If the older compatibility
+app is also running, its lines appear as `SMBConnectDesktop` under the same
+logging subsystem.
 
 ### Share Settings
 
@@ -567,11 +591,21 @@ Important:
 - passwords are not stored in JSON
 - passwords are not stored in the MDM profile
 
-SMB Connect Desktop deliberately does not display or load these password fields. Use the original SMB Connect Settings to create, change, or delete credentials.
+The original SMB Connect app is the credential owner. Use its Settings window
+to create, change, or delete credentials whether you use the compact menu-bar
+presentation or its optional full window.
 
 ### External Mount Requests
 
-`Allow apps to request this volume` permits CopyTrust, SMB Connect Desktop, or another local app to ask the original SMB Connect app to mount this share by its configured **Mount Name**. It is off by default. It remains unavailable when two shares have the same Mount Name because SMB Connect will not guess which one the caller meant.
+`Allow apps to request this volume` permits CopyTrust or another local app to
+ask SMB Connect to mount this share by its configured **Mount Name**. It is off
+by default. It remains unavailable when two shares have the same Mount Name
+because SMB Connect will not guess which one the caller meant.
+
+CopyTrust uses the same request model as the SMB Connect Desktop compatibility
+app: it sends the required Mount Name to SMB Connect, then waits for the volume
+and its own required folder to appear. CopyTrust does not receive the SMB
+password, server address, or preferred/fallback network configuration.
 
 IT can force the same per-share setting through the `com.matx.SMBConnect` MDM
 payload by placing `allowExternalMountRequests = true` in an approved
@@ -806,3 +840,40 @@ Auto-reconnect only fires when the share transitions from mounted to unmounted w
 - the share was never mounted in the current session (the app must have seen it mounted at least once)
 - the 60-second cooldown from a previous reconnect attempt has not elapsed
 - `Auto-reconnect dropped shares` is turned off in Settings → General
+
+## Appendix: SMB Connect Desktop Compatibility App
+
+The separate **SMB Connect Desktop** app is retained for compatibility with
+older deployments. It is no longer needed for a full-size interface: the
+original SMB Connect app now provides its own optional Dock icon, application
+menus, toolbar, and resizable window through **Settings → General → Show Dock
+icon and desktop window**.
+
+If SMB Connect Desktop is already installed, it can continue to show the shared
+share configuration and current mount state. Its role is a client of the
+original SMB Connect app. CopyTrust can use the same request path when it needs
+an approved volume before starting an ingest:
+
+1. A Connect action checks that the share allows external mount requests.
+2. Desktop sends a versioned request using the share's configured Mount Name,
+   for example:
+
+   ```text
+   smbconnect://v1/mount?volume=Example_Archive&request=<uuid>
+   ```
+
+3. macOS opens or activates the original SMB Connect app.
+4. SMB Connect resolves the unique Mount Name, chooses the best reachable
+   preferred or fallback endpoint, reads its own Keychain entry, performs the
+   mount, and updates the shared status.
+
+SMB Connect Desktop does not read, copy, or resave the SMB password. It cannot
+repair a conflicted mount or complete missing credentials itself; those actions
+open the original SMB Connect app. It can still display status, request
+connections for explicitly approved volumes, disconnect a mounted share, and
+reveal it in Finder.
+
+For a new installation, install and use **SMB Connect** alone. Enable its Dock
+icon and full window if the menu-bar presentation is too compact. This keeps one
+credential authority and one mount authority while providing both interface
+styles.

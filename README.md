@@ -72,6 +72,8 @@ multiple storage targets, and each release works towards that.
 
 ## Documentation
 
+- **[Quick Start](SMB-CONNECT-QUICK-START.md)** — a concise three-page setup and daily-use guide
+- **[Quick Start (PDF)](SMB-CONNECT-QUICK-START.pdf)** — printable three-page edition
 - **[User Guide](USER-GUIDE.md)** — setup, getting started, every feature, and troubleshooting
 - **[User Guide (PDF)](USER-GUIDE.pdf)** — the same guide as a printable download
 - **[CopyTrust two-volume MDM workflow](COPYTRUST-TWO-VOLUME-MDM-WORKFLOW.md)** — generate, validate, deploy, and test required destinations
