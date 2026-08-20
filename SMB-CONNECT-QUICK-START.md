@@ -2,9 +2,10 @@
 
 ## 1. Open SMB Connect
 
-Use the original **SMB Connect** app. It owns credentials, network selection,
-mounting, and reconnection. Click its drive icon in the macOS menu bar to see
-networks, share cards, connection counts, and actions.
+SMB Connect keeps a list of the important servers and shares you want to use,
+including an individual account for each share. It connects through your
+preferred fast network, such as `10GbE`, and can fall back to a slower network,
+such as `1GbE`, when that is better than having no connection.
 
 For a regular Mac window, enable **Settings -> General -> Show Dock icon and
 desktop window**. The same app gains a Dock icon and resizable window while the
