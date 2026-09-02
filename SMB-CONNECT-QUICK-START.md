@@ -25,8 +25,10 @@ Passwords stay in the user's Keychain.
 ## 3. Read The Status
 
 A green check means mounted; `Fallback` means it used a slower configured path.
-Blue dashed means ready to connect. Grey means no endpoint answered. Yellow or
-red means complete setup or follow the card's repair guidance.
+In the Connection Summary, the speed uses neutral high-contrast text with a
+green dot for the preferred path or an orange dot for a fallback path. Blue
+dashed means ready to connect. Grey means no endpoint answered. Yellow or red
+means complete setup or follow the card's repair guidance.
 
 ## 4. Make It Automatic
 
@@ -78,4 +80,5 @@ passwords; SMB Connect remains the mount and credential authority.
 
 ## More Help
 
-Open `?` Help or read the [full User Guide](USER-GUIDE.md).
+Open `?` Help or read the full User Guide at
+<https://github.com/macvfx/SMB-Connect/blob/main/USER-GUIDE.md>.
