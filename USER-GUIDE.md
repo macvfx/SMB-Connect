@@ -81,7 +81,11 @@ holding, or a share still needing credentials. A share that is simply offline
 because its server is switched off or you are away from that network is **not**
 counted, and shows a grey icon rather than a red one.
 
-Below that is a one-line summary per share so you can quickly scan which shares are connected and on what network speed.
+Below that is a one-line summary per share so you can quickly scan which shares
+are connected and on what network speed. A green check means connected. The
+network-speed badge uses neutral high-contrast text; its small green dot means
+the preferred path and its orange dot means a fallback path. `Fallback` is also
+spelled out in orange so the meaning does not depend on colour alone.
 
 ### 3. Read A Share Card
 
@@ -106,17 +110,26 @@ Long share names are shortened with a trailing `…`. Hover the name to see it i
 The icon at the top right of each card is an at-a-glance version of the same state the
 `Connection` and `Status` pills spell out below it. Hover any icon to see its wording.
 
-| Icon | Meaning | What to do |
-|------|---------|------------|
-| ✅ green check | Connected — the share is mounted | Nothing |
-| ✅ green check + orange `Fallback` | Connected, but on a fallback network path rather than the preferred one | Nothing, unless you expected the faster path |
-| ◌ blue dashed circle | Ready — a network path is reachable and credentials are saved | Press `Connect` |
-| 🚫 grey crossed-out Wi-Fi | Offline — no configured endpoint responded on port 445. Grey, not red: nothing is broken, the server simply is not answering | Check the server is on and that you are on the right network |
-| 🔑 yellow key | Setup needed — no credentials saved for this share | Press `Complete Setup…` |
-| ⚠️ red warning triangle | Mounted wrong, or a duplicate mount was found | Press `Fix Connection…` |
-| 🛑 red octagon | Blocked — a `/Volumes` name conflict is preventing the mount | See *What To Do For A Volume Name Conflict* |
-| 👤 red person badge | Blocked — another user logged in on this Mac has the volume mounted | See *What To Do When Another User Has The Volume* |
-| ❌ red cross | Error | Read the detail line beneath the card |
+<div class="page-break"></div>
+
+- **✅ Green check — Connected:** the share is mounted. Nothing to do.
+- **✅ Green check + orange `Fallback` — Connected on fallback:** the share is
+  mounted on a fallback path rather than the preferred one. Nothing to do unless
+  you expected the faster path.
+- **◌ Blue dashed circle — Ready:** a network path is reachable and credentials
+  are saved. Press `Connect`.
+- **🚫 Grey crossed-out Wi-Fi — Offline:** no configured endpoint responded on
+  port 445. Grey, not red: nothing is broken; the server simply is not
+  answering. Check the server is on and that you are on the right network.
+- **🔑 Yellow key — Setup needed:** no credentials are saved for this share.
+  Press `Complete Setup…`.
+- **⚠️ Red warning triangle — Mounted wrong or duplicate:** press
+  `Fix Connection…`.
+- **🛑 Red octagon — Blocked:** a `/Volumes` name conflict is preventing the
+  mount. See *What To Do For A Volume Name Conflict*.
+- **👤 Red person badge — Blocked:** another user logged in on this Mac has the
+  volume mounted. See *What To Do When Another User Has The Volume*.
+- **❌ Red cross — Error:** read the detail line beneath the card.
 
 Or follow it through:
 
@@ -202,9 +215,10 @@ The share is mounted and the app believes it is using the fastest configured pre
 The share is mounted, but the preferred path is not active or not selected.
 
 The check mark stays **green** — the share is connected and there is nothing
-wrong with it. The word **Fallback** is what appears in orange, along with the
-`Network` pill, because the only thing worth your attention is that you are on
-the slower path. A green check always means connected.
+wrong with it. The word **Fallback** is what appears in orange. In the compact
+Connection Summary, the speed stays neutral and an orange dot marks the
+fallback path; on the detailed share card, the full `Network` pill remains
+orange. A green check always means connected.
 
 Once the preferred path comes back — the wired network returns, or the server
 starts answering on it again — the share's button changes to
@@ -481,7 +495,7 @@ Passwords are not exported.
 
 If you need to create a valid setup JSON file and a matching MDM `.mobileconfig` from a server list, the repo includes a helper script:
 
-- [generate_smbconnect_config.sh](generate_smbconnect_config.sh)
+- [generate_smbconnect_config.sh](https://github.com/macvfx/SMB-Connect/blob/main/generate_smbconnect_config.sh)
 
 It accepts a comma-separated `.csv` or `.txt` file using
 `alias, protocol, shareName, mountName, defaultUsername, note, preferredIP,
@@ -492,7 +506,7 @@ and generates both output formats for SMB Connect.
 
 Examples and usage details are here:
 
-- [Config Generator README](README-config-generator.md)
+- [Config Generator README](https://github.com/macvfx/SMB-Connect/blob/main/README-config-generator.md)
 
 ### Reporting A Problem
 
@@ -611,7 +625,7 @@ IT can force the same per-share setting through the `com.matx.SMBConnect` MDM
 payload by placing `allowExternalMountRequests = true` in an approved
 `ManagedShares` dictionary. Managed shares are locked in the UI. For a fleet
 rollout, generate and validate the exact profile as described in
-[CopyTrust and SMB Connect MDM deployment plan](COPYTRUST-MDM-DEPLOYMENT-PLAN.md).
+[CopyTrust and SMB Connect MDM deployment plan](https://github.com/macvfx/SMB-Connect/blob/main/COPYTRUST-MDM-DEPLOYMENT-PLAN.md).
 
 An allowed request contains no connection details or credentials:
 
@@ -639,13 +653,13 @@ in the app) or an **MDM `.mobileconfig` profile** (pushed by IT).
   already mounted on a Mac and writes a setup JSON, so you can bootstrap a config
   from a machine that is already working. The same workflow is available on the
   command line via `mount_to_smbconnect_config.sh`. See
-  [scripts/README-mount-import.md](README-mount-import.md).
+  [scripts/README-mount-import.md](https://github.com/macvfx/SMB-Connect/blob/main/README-mount-import.md).
 - **Generator script** — turn a `.csv`/`.txt` server list into both a setup JSON
   and a matching profile in one step. See
-  [scripts/README-config-generator.md](README-config-generator.md).
+  [scripts/README-config-generator.md](https://github.com/macvfx/SMB-Connect/blob/main/README-config-generator.md).
 - **JSON → profile converter** — when you already have a setup JSON and just need
   the deployable MDM profile. See
-  [scripts/README-json-to-mobileconfig.md](README-json-to-mobileconfig.md).
+  [scripts/README-json-to-mobileconfig.md](https://github.com/macvfx/SMB-Connect/blob/main/README-json-to-mobileconfig.md).
 
 ## JSON Configuration
 
@@ -673,9 +687,9 @@ Passwords are intentionally omitted.
 
 See:
 
-- [Configuration Format](CONFIGURATION-FORMAT.md)
-- [SMBConnectSetup-EXAMPLE.json](examples/SMBConnectSetup-EXAMPLE.json)
-- [SMBConnectSetup-DEMO-SIX-SERVERS.json](examples/SMBConnectSetup-DEMO-SIX-SERVERS.json)
+- [Configuration Format](https://github.com/macvfx/SMB-Connect/blob/main/CONFIGURATION-FORMAT.md)
+- [SMBConnectSetup-EXAMPLE.json](https://github.com/macvfx/SMB-Connect/blob/main/examples/SMBConnectSetup-EXAMPLE.json)
+- [SMBConnectSetup-DEMO-SIX-SERVERS.json](https://github.com/macvfx/SMB-Connect/blob/main/examples/SMBConnectSetup-DEMO-SIX-SERVERS.json)
 
 ## MDM Profile Configuration
 
@@ -694,7 +708,7 @@ This is useful when IT wants to push:
 The user can still enter and store their own password locally in Keychain.
 
 You can build the profile directly from a setup JSON with
-[`json_to_mobileconfig.sh`](json_to_mobileconfig.sh):
+[`json_to_mobileconfig.sh`](https://github.com/macvfx/SMB-Connect/blob/main/json_to_mobileconfig.sh):
 
 ```bash
 ./scripts/json_to_mobileconfig.sh \
@@ -725,6 +739,8 @@ external-request policy explicitly enabled:
   Archive Projects
 ```
 
+<div class="page-break"></div>
+
 ### Entering Credentials For A Managed Share
 
 A managed share is preloaded read-only, but its username and password are not
@@ -742,8 +758,8 @@ are saved to the user's Keychain and reused on every connect.
 
 See:
 
-- [com.matx.SMBConnect.mobileconfig](examples/com.matx.SMBConnect.mobileconfig)
-- [scripts/README-json-to-mobileconfig.md](README-json-to-mobileconfig.md)
+- [com.matx.SMBConnect.mobileconfig](https://github.com/macvfx/SMB-Connect/blob/main/examples/com.matx.SMBConnect.mobileconfig)
+- [scripts/README-json-to-mobileconfig.md](https://github.com/macvfx/SMB-Connect/blob/main/README-json-to-mobileconfig.md)
 
 ## Recommended Admin Workflow
 
@@ -757,7 +773,7 @@ See:
 4. For every CopyTrust destination, explicitly enable
    `allowExternalMountRequests`; leave it false for other shares.
 5. To deploy by MDM, convert the JSON with
-   [`json_to_mobileconfig.sh`](json_to_mobileconfig.sh) (or generate
+   [`json_to_mobileconfig.sh`](https://github.com/macvfx/SMB-Connect/blob/main/json_to_mobileconfig.sh) (or generate
    the profile directly). Keep `--allow-user-defined true` unless you want to
    lock users to only the managed shares.
 6. Validate every required CopyTrust Mount Name with
