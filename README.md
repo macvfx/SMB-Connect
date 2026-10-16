@@ -160,3 +160,9 @@ Additional sample inputs are here:
 - [server-shares-example.csv](examples/server-shares-example.csv)
 - [server-shares-example.txt](examples/server-shares-example.txt)
 - [mount-output-example.txt](examples/mount-output-example.txt)
+
+## License
+
+Free to use for your own business or work, including on client jobs. You may not sell,
+redistribute or sublicense the software. The terms are the
+[PolyForm Internal Use License 1.0.0](LICENSE). Copies obtained earlier under Apache-2.0 keep that license.
