@@ -1,3 +1,5 @@
+- *NEW* v0.7.9 beta (build 36) detects when Wi-Fi and wired Ethernet overlap and macOS routes a preferred storage address through Wi-Fi. The unsafe endpoint is blocked before probing or mounting, with a clear Route Conflict explanation. An allowed, separately addressed fallback can still be used. Network-path changes and wake from sleep now request a prompt refresh.
+
 - *NEW* v0.7.8 beta (build 35) -- FIXED: Connect All button works now. 
 -  v0.7.7 -- add something here
 -  v0.7.6 -- add something here too

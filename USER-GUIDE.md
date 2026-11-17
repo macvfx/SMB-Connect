@@ -1,5 +1,41 @@
 # SMB Connect User Guide
 
+## Preferred-only connections and laptop recovery
+
+In **Settings → General**, enable **Only use preferred network** to restrict new
+connections for every share to its preferred endpoint. Turn it off to return to
+each share’s own setting; individual choices are preserved. The global setting
+is shared by both apps and defaults off. It does not disconnect existing mounts.
+
+For an individual share, select it in **Settings** and enable **Only connect on preferred network**.
+This blocks new connections to fallback endpoints for manual Connect, Connect All,
+startup, auto-reconnect, repair, and external mount requests. With the preferred
+endpoint unavailable, the share shows **Waiting for preferred network**. The
+setting defaults off and follows the existing managed-share editing restrictions.
+
+Preferred means the first endpoint in priority order. This selects a server
+endpoint; it does not bind SMB traffic to a physical adapter or verify 10GbE link
+speed. Before probing a local-subnet endpoint, SMB Connect checks which source
+address macOS would actually use. If Wi-Fi owns that route while a matching wired
+interface is active, the endpoint is blocked as a **Route Conflict** rather than
+contacted through the wrong network. An existing fallback mount is left connected when you enable the setting.
+Use the confirmed repair/switch action when you are ready to move it. External
+requests for an already mounted volume keep using that volume.
+
+Auto-reconnect retains intent for shares that were mounted during this app
+session, including when a temporary network outage occurs before a route returns.
+Retries respect the existing 60-second cooldown. Network-path changes and wake
+from sleep request a debounced refresh immediately; the 20-second status refresh
+remains as a backstop.
+Explicit Disconnect or Disconnect All cancels that intent. A surviving mount is
+not automatically disconnected because a reachability probe changes its result.
+
+Click the Dock icon to open and focus the main window, including when only Help
+or Settings is visible. For the original app, enable **Show Dock icon and desktop
+window** under General. The existing `smbconnect://v1/show-desktop` action also
+opens the window and saves that preference.
+
+
 ## Overview
 
 SMB Connect connects to SMB shares by IP address while preferring the fastest configured network path.
@@ -129,6 +165,9 @@ The icon at the top right of each card is an at-a-glance version of the same sta
   mount. See *What To Do For A Volume Name Conflict*.
 - **👤 Red person badge — Blocked:** another user logged in on this Mac has the
   volume mounted. See *What To Do When Another User Has The Volume*.
+- **Branching arrows — Route Conflict:** macOS would route the configured storage
+  address through Wi-Fi even though a wired interface is active on the same subnet.
+  SMB Connect refuses that endpoint until the route is corrected.
 - **❌ Red cross — Error:** read the detail line beneath the card.
 
 Or follow it through:
@@ -198,11 +237,22 @@ This shows the current or selected network speed for that share, for example:
 
 ### 5. Use Connect All
 
-The `Connect All` button (`⌘K`) in the footer connects every share that is currently in a ready state — meaning the preferred or fallback network path is reachable and credentials are saved in Keychain.
+The `Connect All` button (`⌘K`) in the footer starts by refreshing the setup,
+mounted volumes, networks, and share readiness. It accounts for every configured
+share, then mounts each ready share one at a time. Sequential mounting avoids a
+burst of simultaneous SMB sessions while still continuing to later shares when
+one share fails.
 
-It is disabled when no shares are connectable (for example, when all shares are already mounted or no network paths are active).
+While the batch runs, the progress line names the share being mounted and the
+button remains disabled so a second batch cannot overlap it. The final message
+reports how many shares connected now, were already connected, failed, or were
+skipped. It includes the reason for every failed or skipped share.
 
-Shares with missing credentials, name conflicts, or duplicate mounts are skipped and must be resolved individually.
+Ready means a preferred or permitted fallback endpoint is reachable and the
+share is safe to mount. Already mounted shares are preserved. Shares with
+missing credentials, unavailable or policy-blocked networks, name conflicts,
+another user's mount, or a repair state are not mounted; the status and final
+summary explain what needs attention.
 
 ## What The Main States Mean
 
@@ -383,6 +433,28 @@ If you see it, plug in Ethernet and press `Refresh`.
 
 Thunderbolt bridges and VPN tunnels are shown but not judged either way — the app cannot tell a 10GbE Thunderbolt adapter from a tunnel, so it reports the connection and leaves the verdict to you.
 
+### Wi-Fi And Ethernet On The Same Subnet
+
+Two active interfaces can use the same IPv4 subnet while reaching different
+physical networks. For example, Wi-Fi and a dedicated storage adapter might both
+have addresses in the fictional `192.0.2.0/24` documentation subnet. macOS still
+chooses only one outgoing interface for a server address, and its service order
+may send that address through Wi-Fi even while the wired adapter remains active.
+
+SMB Connect asks the kernel which local source address it would use before it
+probes or mounts an endpoint on a directly attached subnet. When Wi-Fi owns that
+route and a matching wired interface is active, the app:
+
+- does not probe or mount that endpoint
+- shows **Route Conflict** with the Wi-Fi and wired interface names
+- continues to an allowed configured fallback, when one is available
+- re-evaluates the share after a network-path change, wake, manual Refresh, or
+  the periodic refresh
+
+The most reliable correction is to put the wired storage network on a subnet
+that does not overlap Wi-Fi. Alternatively, move the wired service above Wi-Fi
+in **System Settings → Network → Set Service Order**, then press `Refresh`.
+
 ## What `Refresh` Does
 
 `Refresh` does four things:
@@ -399,6 +471,11 @@ Use it after:
 - changing networks
 - renaming or removing an item in `/Volumes`
 - disconnecting or reconnecting shares outside the app
+
+SMB Connect also requests a refresh automatically when macOS reports a
+network-path change and after the Mac wakes from sleep. These event-driven
+refreshes are debounced briefly so the app assesses one stable route snapshot.
+The regular 20-second refresh remains as a backstop.
 
 ## In-App Help
 
@@ -462,7 +539,11 @@ This contains:
 
 `Launch at login` registers the app with macOS to open automatically when the user logs in.
 
-`Connect all shares on start` automatically connects every share that is in a ready state after the app finishes its first status check on launch. This works the same as pressing `Connect All` manually — only shares with saved credentials and a reachable network path are attempted. Shares with issues are skipped.
+`Connect all shares on start` runs the same refreshed, sequential Connect All
+batch after the first status check on launch. Ready shares are attempted even if
+an earlier share fails. Already mounted shares are preserved, and shares with
+missing credentials, no permitted reachable endpoint, or a safety/repair issue
+are recorded but not mounted.
 
 `Auto-reconnect dropped shares` monitors connected shares and automatically reconnects any that drop while the server is still reachable. When a share transitions from mounted to unmounted and SMB Connect can still reach the server on TCP port 445, the app disconnects any stale mount points and reconnects cleanly via the best available network path. A 60-second cooldown per share prevents rapid-fire reconnect attempts if the server is flapping. This is enabled by default.
 
@@ -516,6 +597,13 @@ with what asked for it — you, a repair, a switch to the preferred path, or
 automatic reconnection. It also records the mounts and unmounts **macOS**
 performs on its own, which is what tells you whether shares dropped because the
 app disconnected them or because the network did.
+
+For Connect All, the log marks the batch start and refresh duration, the local
+interfaces, every recognized configured volume, each share's readiness and
+selected endpoint, existing mounts, each sequential mount start, every reason a
+share was not mounted, the per-share outcome, and the final counts and duration.
+This makes a slow batch distinguishable from one waiting on credentials, network
+reachability, a mount operation, or a safety conflict.
 
 `Export Logs and Diagnostics…`, available from the macOS **Help** menu and
 Settings, writes that log together with your configured shares and
@@ -787,7 +875,7 @@ See:
 2. Open `Settings…` if a share shows `Complete Setup`.
 3. Save your username and password in the `Credentials` section.
 4. Return to the menu bar app.
-5. Press `Connect All` to mount all ready shares in one action, or connect individual shares as needed.
+5. Press `Connect All` to refresh and mount all ready shares sequentially, or connect individual shares as needed. Review the final summary for any share that failed or was skipped.
 6. If warned about duplicate mounts or `/Volumes` conflicts, resolve those before editing media.
 
 To connect automatically on every login, enable both `Launch at login` and `Connect all shares on start` in Settings → General.
@@ -835,6 +923,18 @@ Use the repair workflow or manually disconnect all matching mounts and reconnect
 ### The Share Mounted On The Wrong Network
 
 If the app says the share is on a fallback or slower path, use the repair flow to disconnect and reconnect on the preferred network when available.
+
+### The Share Shows `Route Conflict`
+
+The preferred server address currently resolves to a Wi-Fi source address while
+a wired interface is active on the same subnet. SMB Connect blocks the endpoint
+before probing or mounting it because the same numeric address may name a
+different device on the Wi-Fi network.
+
+Use a distinct subnet for dedicated storage when possible. Otherwise, move the
+wired network service above Wi-Fi in macOS service order and press `Refresh`.
+Turning off preferred-only policy may allow a separately addressed fallback; it
+does not make an ambiguous preferred route safe.
 
 > **Fixed in v0.5.3.** Earlier builds (v0.5.1 and v0.5.2) could falsely report `Mounted Wrong` or a duplicate for a share whose name matched a macOS system/autofs volume — most commonly a share called `Home`, which collided with the built-in `auto_home` volume named `home` — even though there was no real mount and no `-1` volume in `/Volumes`. v0.5.3 restricts detection to genuine network shares under `/Volumes`. If you saw this, install v0.5.3 and press `Refresh`.
 

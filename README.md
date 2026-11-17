@@ -1,6 +1,6 @@
 # SMB Connect
 
-`v0.7.8` current beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
+`v0.7.9` current beta · `macOS 14+` · `SwiftUI` · `Menu Bar + Dock Utility`
 
 SMB Connect mounts SMB shares on macOS with awareness of preferred, fallback, and remote-reachability network paths such as `10GbE`, `1GbE`, `25GbE`, `100GbE`, and VPN/custom endpoints.
 
@@ -19,7 +19,7 @@ Newest first. SMB Connect is designed for environments where users regularly con
 multiple storage targets, and each release works towards that.
 
 
-- *NEW* v0.7.8 beta (build 35) -- FIXED: Connect All button works now. 
+- *NEW* v0.7.9 beta (build 36) -- Blocks preferred storage addresses when macOS routes them through Wi-Fi instead of matching wired Ethernet, and refreshes promptly after network changes and wake.
 
 
 ## Documentation
@@ -42,6 +42,8 @@ Quick Start and an Advanced section.
 - Mounts SMB shares through macOS using stored user credentials
 - Shows connection state in the menu bar popover with per-share status cards, or in SMB Connect Desktop's window with a share list beside a full detail pane
 - Warns when the Mac is on Wi-Fi with no wired path, since shares mount over Wi-Fi perfectly well and simply run far slower than the wired path they are configured for
+- Detects overlapping Wi-Fi and wired subnets by checking the kernel-selected source address; a preferred storage endpoint routed through Wi-Fi is blocked with a clear Route Conflict instead of being contacted on the wrong network
+- Requests a debounced refresh after network-path changes and wake from sleep, with the periodic refresh retained as a backstop
 - Connects all ready shares in one click (`Connect All`, `⌘K`) or automatically on app start
 - Auto-reconnects dropped shares when the server is still reachable, with stale mount cleanup and a 60-second cooldown; a share is never disconnected until a saved password and a reachable path are both in hand, so a reconnect that cannot succeed leaves the working mount alone
 - Moves a share back onto its preferred network with `Switch to Preferred`, which disconnects it and mounts it once — offered only when the preferred path really is the one that will be used, and always after confirmation
