@@ -19,6 +19,7 @@ Newest first. SMB Connect is designed for environments where users regularly con
 multiple storage targets, and each release works towards that.
 
 
+- *NEW* v0.7.9 beta (build 37) -- Connect All now says why it is greyed out: a line under the buttons in the menu bar popup, and a tooltip in the Dock app, naming the cause (for example Only use preferred network, or no path to the server).
 - *NEW* v0.7.9 beta (build 36) -- Blocks preferred storage addresses when macOS routes them through Wi-Fi instead of matching wired Ethernet, and refreshes promptly after network changes and wake.
 
 

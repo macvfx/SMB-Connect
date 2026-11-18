@@ -248,6 +248,14 @@ button remains disabled so a second batch cannot overlap it. The final message
 reports how many shares connected now, were already connected, failed, or were
 skipped. It includes the reason for every failed or skipped share.
 
+When `Connect All` is greyed out, the menu bar popup shows the reason in a line
+under the buttons, and the Dock app's toolbar button and `Shares` menu item show
+it as a tooltip. The reason names the cause: a batch already running, no shares
+configured, every share already connected, **Only use preferred network**
+(global or per share) blocking fallback networks while the preferred one is
+unreachable, no network path to the server on port 445, a missing saved
+password, a Wi-Fi and wired route conflict, or a share that needs attention.
+
 Ready means a preferred or permitted fallback endpoint is reachable and the
 share is safe to mount. Already mounted shares are preserved. Shares with
 missing credentials, unavailable or policy-blocked networks, name conflicts,

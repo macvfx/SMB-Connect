@@ -55,7 +55,8 @@ menu-bar control stays available.
 3. Press `Connect`, or use `Connect All` to refresh and check every configured
    share, then mount each ready share one at a time. One failure does not stop
    the remaining shares. The final message counts connected, already connected,
-   failed, and skipped shares and explains every failure or skip.
+   failed, and skipped shares and explains every failure or skip. If `Connect All`
+   is greyed out, the reason appears under the button in the menu bar popup.
 
 Passwords stay in the user's Keychain.
 

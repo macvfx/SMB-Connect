@@ -1,3 +1,5 @@
+- *NEW* v0.7.9 beta (build 37) -- Connect All now tells you why it is greyed out. The menu bar popup shows a line under the buttons, and the Dock app's toolbar button and Shares menu item show it as a tooltip. It names the cause: Only use preferred network blocking fallback networks while the preferred one is unreachable, no network path to the server on port 445, a missing saved password, a Wi-Fi and wired route conflict, a batch already running, or nothing left to connect.
+
 - *NEW* v0.7.9 beta (build 36) detects when Wi-Fi and wired Ethernet overlap and macOS routes a preferred storage address through Wi-Fi. The unsafe endpoint is blocked before probing or mounting, with a clear Route Conflict explanation. An allowed, separately addressed fallback can still be used. Network-path changes and wake from sleep now request a prompt refresh.
 
 - *NEW* v0.7.8 beta (build 35) -- FIXED: Connect All button works now. 
